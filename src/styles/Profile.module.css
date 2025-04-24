@@ -1,0 +1,319 @@
+ .profileContainer {
+    max-width: 900px;
+    margin: 50px auto;
+    padding: 40px;
+    background: #273444;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    color: #fff;
+  }
+  
+  .headerSection {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .profilePicContainer {
+    position: relative;
+    margin-right: 20px;
+    margin-bottom: 20px;
+  }
+  
+  .editFrame {
+    border: 4px dotted #f8fbfe;
+  }
+
+  .imageWrapper {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .cameraIcon {
+    position: absolute;
+    bottom: 9px;
+    right: 8px;
+    width: 25px;
+    height: 25px;
+    background: rgba(0, 0, 0, 0.6);
+    border-radius: 50%;
+    padding: 4px;
+    cursor: pointer;
+    color: white;
+    transition: transform 0.2s ease;
+  }
+  
+  .cameraIcon:hover {
+    transform: scale(1.1);
+  }
+  
+  
+  .profilePic {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #66fcf1;
+  }
+  
+  .fileInput {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    opacity: 0;
+    cursor: pointer;
+    width: 150px;
+    height: 150px;
+  }
+  
+  .infoHeader {
+    flex: 1;
+  }
+  
+  .profileName {
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+  }
+  
+  .nameInput {
+    font-size: 28px;
+    background: transparent;
+    border: 1px solid #66fcf1;
+    color: #fff;
+    padding: 5px 10px;
+    border-radius: 5px;
+  }
+  
+  .email, .phone {
+    margin: 5px 0;
+    font-size: 16px;
+    color: #b0b0b0;
+  }
+  
+  .editButton {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    background: #66fcf1;
+    color: #1e2b3a;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .editButton:hover {
+    background: #3b9ae3;
+  }
+  
+  .profileForm {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .formGroup {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .formGroup label {
+    margin-bottom: 5px;
+    font-weight: bold;
+  }
+  
+  .inputField, .textArea {
+    padding: 10px;
+    border: 1px solid #34495e;
+    border-radius: 5px;
+    background: #1e2b3a;
+    color: #fff;
+  }
+  
+  .textArea {
+    resize: vertical;
+    min-height: 80px;
+  }
+
+  .hobbyContainer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .hobbyChip {
+    padding: 0.4rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 16px;
+    background: transparent;
+    cursor: pointer;
+    font-size: 0.9rem;
+    transition: all 0.2s;
+    color: #eee;
+  }
+  .selectedChip {
+    background: #007bff;
+    color: #fff;
+    border-color: #007bff;
+  }
+  
+  
+  .updateButton {
+    align-self: flex-start;
+    padding: 10px 20px;
+    background: #66fcf1;
+    color: #1e2b3a;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+  }
+  
+  .updateButton:hover {
+    background: #3b9ae3;
+  }
+  
+  .detailsSection {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    padding: 25px;
+    background: #1e2b3a;
+    border-radius: 8px;
+  }
+  
+  .detailItem {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .detailLabel {
+    font-weight: bold;
+    margin-right: 8px;
+    color: #66fcf1;
+  }
+  
+  .detailValue {
+    color: #fff;
+  }
+  
+  .message {
+    margin-top: 15px;
+    text-align: center;
+    font-size: 16px;
+    color: #66fcf1;
+  }
+
+  /* ─── MOBILE PROFILE LAYOUT (≤768px) ───────────────────────────────── */
+@media (max-width: 768px) {
+    /* Container stretches edge-to-edge, cozier padding */
+    .profileContainer {
+      max-width: 100%;
+      margin: 20px 8px;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    }
+  
+    /* Header stacks vertically and centers everything */
+    .headerSection {
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+  
+    /* Profile pic shrinks, border thins */
+    .profilePicContainer {
+      margin-right: 0;
+      margin-bottom: 16px;
+    }
+    .profilePic {
+      width: 100px;
+      height: 100px;
+      border: 3px solid #66fcf1;
+    }
+  
+    /* File input & camera icon scale down */
+    .fileInput {
+      width: 100px;
+      height: 100px;
+    }
+    .cameraIcon {
+      width: 20px;
+      height: 20px;
+      bottom: 6px;
+      right: 6px;
+      padding: 3px;
+    }
+  
+    /* Name & info center and scale fonts */
+    .infoHeader {
+      width: 100%;
+    }
+    .profileName,
+    .nameInput {
+      font-size: 1.6rem; /* ~26px */
+      width: 100%;
+    }
+    .email, .phone {
+      font-size: 0.9rem;
+    }
+  
+    .editButton {
+      bottom: 2px;
+      right: 3px;
+      padding: 5px 9px;
+      font-size: 0.8rem;
+    }
+  
+    .profileForm {
+      gap: 25px;
+    }
+    .inputField, .textArea {
+      padding: 8px;
+      font-size: 0.9rem;
+    }
+  
+    .updateButton {
+      align-self: center;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      margin-top: 12px;
+
+    }
+  
+    /* Details section tighter padding */
+    .detailsSection {
+      padding: 16px;
+      gap: 20px;
+    }
+    .detailItem {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .detailLabel {
+      margin-bottom: 5px;
+    }
+  
+    .hobbyContainer {
+      gap: 0.4rem;
+    }
+    .hobbyChip {
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+    }
+  
+    .message {
+      font-size: 0.9rem;
+      margin-top: 12px;
+    }
+  }
+  
+  

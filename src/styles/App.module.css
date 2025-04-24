@@ -1,0 +1,10 @@
+/* App.module.css */
+.appContainer {
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  background: #1e2b3a; 
+  color: #fff;
+  font-family: 'Roboto', sans-serif;
+  overflow-y: auto;
+}

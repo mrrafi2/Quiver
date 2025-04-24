@@ -1,0 +1,347 @@
+.chatContainer {
+    display: flex;
+    height: 100vh;
+    overflow: hidden;
+    font-family: 'Inter', sans-serif;
+    transition: background 0.6s ease, color 0.3s ease;
+
+  }
+
+  .chatContainer::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    filter: brightness(0.95) saturate(1.3);
+    backdrop-filter: blur(6px);
+    z-index: -1;
+  }
+  
+  .chatContainer.dawn {
+    background: linear-gradient(135deg, #FFF1EB, #ACE0F9);
+    background-blend-mode: screen;
+  }
+  
+  .chatContainer.sunny {
+    background: linear-gradient(100deg, #fef9d7, #fbb034, #ff4e00);
+    background-blend-mode: screen;
+;
+  }
+  
+  .chatContainer.dusk {
+    background: linear-gradient(135deg,#355070, #6d2672, #DC2430);
+    background-blend-mode: overlay;
+  }
+  
+  .chatContainer.starry {
+    background: linear-gradient(135deg, #0F2027, #203A43, #2C5364);
+    background-blend-mode: normal;
+  }
+  
+  .chatContainer.rainy {
+    background: linear-gradient(125deg, #c2dfe3 10%, #a9f7fc 20%, #e0fbfc, #66A6FF 90%);
+    background-blend-mode: soft-light;
+  }
+  
+  .chatContainer.forest {
+    background: linear-gradient(135deg,#2d6a4f, #5A3F37, #1c7d3b,#606c38);
+    background-blend-mode: multiply;
+  }
+  
+  .chatContainer.ocean {
+    background: linear-gradient(135deg, #2E3192, #48cae4, #1BFFFF);
+    background-blend-mode: soft-light;
+  }
+  
+  
+  .chatMain {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .topBar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px 16px;
+    background: rgba(0,0,0,0.25);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    color: white;
+    z-index: 1111;
+  }
+  
+  
+  .topName {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #fff;
+    flex-grow: 1;
+    min-width: 120px;
+    white-space: nowrap;
+  }
+  
+  .typingIndicator {
+    display: flex;
+    gap: 4px;
+    margin-left: 20px;
+    min-width: 60px;
+  }
+  
+  .dot {
+    width: 6px;
+    height: 6px;
+    background: #fff;
+    border-radius: 50%;
+  }
+  
+  .themeSelector {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-radius: 1rem;
+    
+    font-family: 'Inter', sans-serif;
+    color: #333;
+    position: relative;
+    float: right;
+  }
+  
+  .themeSelector label {
+    color: #f0f0f0;
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.875rem;
+  }
+  
+  /* Select box */
+  .themeSelector select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    padding: 0.5rem 2rem 0.5rem 0.75rem;
+    border: none;
+    border-radius: 0.75rem;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.3);
+    color: #eee;
+    font-size: 1rem;
+    cursor: pointer;
+    position: relative;
+    z-index: 1;
+  }
+  
+  
+  .themeSelector select:focus {
+    outline: none;
+    box-shadow: inset 0 0 0 2px #ffbf47;
+  }
+  
+  
+  
+  .themeSelector select option {
+    background-color: #333;
+    color: #fff;
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+   
+  .messagesArea {
+    flex: 1;
+    padding: 20px;
+    overflow-y: auto;
+  }
+  
+  .noSelection {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #aaa;
+  }
+
+
+.moodSelector {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: 1rem;
+  }
+  
+ 
+  .moodSelector label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+  }
+  
+  .moodSelector select {
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+  
+    background-image:
+      linear-gradient(#fff, #fff),                    
+      linear-gradient(135deg, #ff9a9e, #fad0c4);      
+    background-origin: padding-box, border-box;
+    background-clip: padding-box, border-box;
+  
+    padding: 6px 32px 6px 12px;
+    border: 2px solid transparent;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: #333;
+    cursor: pointer;
+    transition: box-shadow 0.2s ease;
+  }
+  
+  /* Custom arrow */
+
+  
+  /* Focus ring */
+  .moodSelector select:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 154, 158, 0.5);
+  }
+  
+  .moodSelector option {
+    background-color: #fff;
+    color: #333;
+    padding: 4px 8px;
+  }
+  
+  .moodSelector option:hover {
+    background-color: #ffecec;
+  }
+  
+  .moodSelector select option:checked {
+    background-image: linear-gradient(135deg, #ff9a9e, #fad0c4);
+    color: #fff;
+  }
+  
+  
+  .whisperToggle {
+    position: relative;
+    width: 65px;
+    height: 24px;
+    background: #d1d5db;               
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.3s;
+    margin-left: 1rem;
+  }
+  
+  .whisperToggle::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 20px;
+    height: 20px;
+    background: #fff;
+    border-radius: 50%;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+  }
+  
+ 
+  .whisperToggle.active {
+    background: linear-gradient(135deg, #FFAFBD, #FFC3A0);
+  }
+  
+ 
+  .whisperToggle.active::before {
+    transform: translateX(40px);
+  }
+
+  .hamburger {
+    display: none;
+    background: none;
+    border: none;
+    font-size: 1.6rem;
+    cursor: pointer;
+    color: #fff;
+    margin-left: auto;
+    position: relative;
+    top: -2px;
+  }
+
+  .backButton {
+    background: none;
+    border: none;
+    font-size: 1rem;
+    color: #eee;        
+    cursor: pointer;
+    padding: 0.5rem;
+    margin-right: 1rem;
+  }
+
+  
+  @media (max-width: 768px) {
+.chatContainer{
+    flex-direction: column;
+    overflow: auto;
+}
+.chatMain {
+    width: 100%;
+    flex: none;
+  }
+  
+    .controlPanel {
+      display: none;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 18px;
+      width: 100%;
+    }
+  
+    .showControls .controlPanel {
+      display: flex;
+    }
+  
+    .hamburger {
+      display: block;
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      margin-left: auto;
+      color: #fff;
+      cursor: pointer;
+      position: relative;
+      top: -2px;
+    }
+
+    .controlPanel .whisperToggle {
+        margin-bottom: 13px;
+    }
+   
+    .controlPanel  .themeSelector {
+        margin-bottom: 13px;
+    }
+    
+    .controlPanel .moodSelector  {
+        margin-bottom: 15px;
+    }
+  } 
+  
+  @media (min-width: 769px) {
+    .controlPanel {
+      display: flex !important;
+      flex-direction: row;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 15px;
+    }
+  
+    .hamburger {
+      display: none;
+    }
+  }
+  

@@ -1,0 +1,109 @@
+.overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 20, 40, 0.85);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+  }
+  
+  /* Wrapper to center loader and progress */
+  .loaderWrapper {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  /* The “glass” you’re filling */
+  .glassContainer {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    background: rgba(255,255,255,0.1);
+    border: 2px solid rgba(0,255,255,0.5);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
+  }
+  
+  /* The liquid itself */
+  .liquid {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: var(--fill);
+    background: linear-gradient(180deg, rgba(102,252,241,0.9), rgba(69,162,158,0.9));
+    transition: height 0.3s ease-out;
+    /* Auto-fill when no real progress */
+    animation: autoFill 3s ease-in-out infinite alternate;
+  }
+  
+  /* Stop auto-fill when determinate (overridden inline) */
+  .liquid[style*="animation: none"] {
+    animation: none !important;
+  }
+  
+  /* SVG wave sits at top of liquid */
+  .wave {
+    position: absolute;
+    bottom: calc(var(--fill) - 10px);
+    left: 0;
+    width: 100%;
+    height: 20px;
+    pointer-events: none;
+    transition: bottom 0.3s ease-out;
+  }
+  
+  /* Centered progress ring below glass */
+  .progressCircle {
+    position: absolute;
+    top: calc(100% + 12px);
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .progressCircle svg {
+    transform: rotate(-90deg);
+    width: 100%;
+    height: 100%;
+  }
+  
+  .circleBg {
+    fill: none;
+    stroke: rgba(255,255,255,0.2);
+    stroke-width: 2.8;
+  }
+  
+  .circleFill {
+    fill: none;
+    stroke: #66fcf1;
+    stroke-width: 2.8;
+    stroke-linecap: round;
+    transition: stroke-dasharray 0.3s ease-out;
+  }
+  
+  .progressText {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 0.8rem;
+    color: #fff;
+    font-weight: bold;
+  }
+  
+  @keyframes autoFill {
+    0%   { height:   0%; }
+    50%  { height:  60%; }
+    100% { height: 100%; }
+  }
+  

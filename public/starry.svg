@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <filter id="starGlow">
+      <feGaussianBlur stdDeviation="1.5" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  <polygon 
+    points="16,2 19,12 30,12 21,19 24,30 16,24 8,30 11,19 2,12 13,12"
+    fill="#FFFFFF"
+    filter="url(#starGlow)"
+  />
+</svg>

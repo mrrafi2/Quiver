@@ -1,0 +1,110 @@
+.canvasContainer {
+    display: flex;
+    height: 100vh;
+    width: 100%;
+  }
+  
+  /* Sidebar: always scrollable */
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    width: 64px;
+    background: #f7f7f7;
+    overflow-y: auto;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
+  }
+  
+  /* Section: tool icons */
+  .toolSection {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    padding: 8px 0;
+  }
+  .toolBtn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    margin: 4px;
+    cursor: pointer;
+    position: relative;
+  }
+  .toolBtn:hover {
+    transform: scale(1.2);
+  }
+  .activeTool::before {
+    content: '▶';
+    position: absolute;
+    left: -12px;
+    color: #007bff;
+  }
+  
+  /* Section: size slider */
+  .sliderSection {
+    display: flex;
+    justify-content: center;
+    padding: 16px 0;
+  }
+  .slider {
+    -webkit-appearance: none;
+    width: 120px;
+    transform: rotate(-90deg);
+    cursor: pointer;
+  }
+  .slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 16px; height: 16px;
+    background: #007bff;
+    border-radius: 50%;
+  }
+  
+  /* Section: color pickers */
+  .colorSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 16px 0;
+  }
+  .colorPicker {
+    width: 36px; height:36px;
+    border:2px solid #ccc;
+    border-radius:8px;
+    cursor:pointer;
+  }
+  
+  /* Spacer grows */
+  .spacer {
+    flex: 1;
+  }
+  
+  /* Actions always at bottom */
+  .actionSection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 4px;
+  }
+  .saveBtn, .undoBtn, .clearBtn {
+    padding: 6px;
+    border: none;
+    border-radius: 6px;
+    color: #fff;
+    cursor: pointer;
+  }
+  .saveBtn { background: #28a745; }
+  .undoBtn { background: #6c757d; }
+  .clearBtn { background: #dc3545; }
+  
+  /* Canvas area */
+  .canvasWrapper {
+    flex: 1;
+  }
+  .react-sketch-canvas {
+    width: 100% !important;
+    height: 100% !important;
+    touch-action: none;
+    cursor: crosshair !important;
+  }
+
+  

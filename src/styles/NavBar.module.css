@@ -1,0 +1,229 @@
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(135deg, #273444, #1a2026);
+    padding: 0 20px;
+    height: 70px;
+    border-bottom: 2px solid #34495e;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .logo {
+    font-size: 28px;
+    font-weight: bold;
+    letter-spacing: 1px;
+    font-family: "Crimson Text", serif;
+
+  }
+  
+  .logoLink {
+    color: #66fcf1;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .logoLink:hover {
+    color: #3b9ae3;
+  }
+  
+  .navLinks {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+  }
+  
+  .link {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    transition: color 0.3s ease;
+  }
+  
+  .link:hover {
+    color: #66fcf1;
+  }
+  
+  .profileLink {
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+  }
+  
+  .profilePic {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 2px solid #66fcf1;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  
+  .profilePic:hover {
+    transform: scale(1.1);
+    border-color: #3b9ae3;
+  }
+  
+  /* Futuristic icon buttons */
+  .iconButton {
+    position: relative;
+    background: transparent;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    padding: 6px;
+    transition: transform 0.2s ease, color 0.3s ease;
+  }
+  
+  .iconButton:hover {
+    color: #66fcf1;
+    transform: scale(1.1);
+  }
+  
+  /* Notification badge */
+  .badge {
+    position: absolute;
+    top: -4px;
+    right: -4px;
+    background: #ff4757;
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 2px 6px;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  }
+  
+  /* Logout button styling */
+  .logoutButton {
+    display: flex;
+    align-items: center;
+    background: linear-gradient(135deg, #ff4d4f, #ff6b6b);
+    color: #fff;
+    border: none;
+    padding: 8px 10px;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 4px 15px rgba(255, 77, 79, 0.4);
+    transition: transform 0.2s ease, background 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .logoutButton:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #ff6b6b, #ff8787);
+    box-shadow: 0 6px 18px rgba(255, 107, 107, 0.5);
+  }
+  
+  .logoutButton:active {
+    transform: scale(0.97);
+    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+  }
+  
+
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+  }
+  
+  .confirmBox {
+    background: #1e2b3a;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 20px rgba(102, 252, 241, 0.4);
+    text-align: center;
+    color: #fff;
+    max-width: 400px;
+    width: 90%;
+  }
+  
+  .confirmButtons {
+    display: flex;
+    justify-content: space-around;
+    margin-top: 20px;
+  }
+  
+  .yesBtn, .cancelBtn {
+    padding: 6px 14px;
+    border: none;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    font-size: 13px;
+    transition: all 0.3s ease;
+  }
+  
+  .yesBtn {
+    background-color: #ff4d4f;
+    color: white;
+  }
+  
+  .yesBtn:hover {
+    background-color: #ff7875;
+  }
+  
+  .cancelBtn {
+    background-color: #66fcf1;
+    color: #1e2b3a;
+  }
+  
+  .cancelBtn:hover {
+    background-color: #3b9ae3;
+  }
+
+  @media (max-width: 480px) {
+    .navbar {
+      padding: 8px 12px;
+      height: 70px;
+      z-index: 200;
+    }
+  
+    .logo {
+      font-size: 1.4rem;
+    }
+  
+    .navLinks {
+      gap: 10px;
+      overflow-x: auto;
+    }
+  
+    .link {
+      font-size: 0.8rem;
+      padding: 4px;
+    }
+  
+    .iconButton {
+      padding: 2px;
+    }
+  
+    .profileLink {
+      margin: 0;
+    }
+  
+    .profilePic {
+      width: 30px;
+      height: 30px;
+    }
+  
+    .badge {
+      top: -2px;
+      right: -2px;
+      font-size: 0.6rem;
+      padding: 1px 3px;
+    }
+  
+    .logoutButton {
+      padding: 4px 6px;
+      font-size: 0.75rem;
+    }
+  }
+  
