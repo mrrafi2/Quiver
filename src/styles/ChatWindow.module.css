@@ -4,6 +4,7 @@
     overflow: hidden;
     font-family: 'Inter', sans-serif;
     transition: background 0.6s ease, color 0.3s ease;
+    min-height: 100vh;
 
   }
 
@@ -285,15 +286,26 @@
 
   
   @media (max-width: 768px) {
-.chatContainer{
-    flex-direction: column;
-    overflow: auto;
-}
-.chatMain {
-    width: 100%;
-    flex: none;
-  }
-  
+    .chatContainer {
+        flex-direction: column;
+        overflow: hidden; /* Prevent ugly outer scroll */
+      }
+    
+      .chatMain {
+        flex: 1;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        min-height: 0; /* Allow child to properly scroll */
+      }
+    
+      .messagesArea {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 20px;
+        padding-bottom: 5rem; /* Make room for FAB */
+      }  
     .controlPanel {
       display: none;
       flex-direction: column;
@@ -343,5 +355,22 @@
     .hamburger {
       display: none;
     }
+  }
+  
+.fabMobile {
+    position: fixed;      
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0.2rem 0.6rem; /* match your design */
+    background: rgba(0,0,0,0.85);
+    display: flex;
+    justify-content: center;
+    z-index: 50;         
+  }
+  
+  
+  .fabMobile .floatingActionBar {
+    margin: 0;
   }
   

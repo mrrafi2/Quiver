@@ -336,6 +336,46 @@
 .oceanOwn    { background: #4a8fe7; }
 .oceanTheirs { background: #80ced7; }
 
+.friendReaction {
+    position: relative;
+    right: -3px;
+    background: radial-gradient(circle at top left, #1c1f2b, #0f1118); 
+    padding: 4px;
+    border-radius: 50%;
+    border: 2px solid #111;
+    box-shadow:
+    0 4px 8px rgba(0, 255, 255, 0.4),   
+    0 0 10px rgba(0, 255, 255, 0.6);  
+
+    animation: neonPulse 1.5s infinite ease-in-out;
+    z-index: 0;
+  }
+  
+  .friendReactionEmoji {
+    display: inline-block;
+    font-size: 0.9rem;
+    filter: drop-shadow(0 0 2px #fff);
+    animation: wobble 2s infinite ease-in-out;
+  }
+  
+  @keyframes neonPulse {
+    0%, 100% {
+    box-shadow:
+      0 4px 8px rgba(0, 255, 255, 0.4),
+      0 0 10px rgba(0, 255, 255, 0.6);  
+    }
+    50% {
+        box-shadow:
+        0 6px 12px rgba(0, 255, 255, 0.6),
+        0 0 20px rgba(0, 255, 255, 0.8);  
+    }
+  }
+  
+  @keyframes wobble {
+    0%, 100%   { transform: rotate(-15deg) scale(1); }
+    50%        { transform: rotate(-10deg) scale(1.1); }
+  }  
+
   
   
 @media (max-width: 768px) {
@@ -453,4 +493,54 @@
       font-size: 1.5rem;
     }
   }
+
+
+
+
+  .chattyLoader {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+  }
+  
+  .loaderBubble {
+    position: relative;
+    background: #2a2e3d;        
+    padding: 1rem 1.4rem;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  }
+  
+  .loaderBubble::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 20px;
+    width: 0;
+    height: 0;
+    border: 8px solid transparent;
+    border-top-color: #2a2e3d;
+  }
+  
+  .loaderDot {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin: 0 4px;
+    background: #0ff;               
+    border-radius: 50%;
+    animation: bounceDot 1s infinite ease-in-out;
+  }
+  
+  .loaderDot:nth-child(1) { animation-delay: 0s; }
+  .loaderDot:nth-child(2) { animation-delay: 0.2s; }
+  .loaderDot:nth-child(3) { animation-delay: 0.4s; }
+  
+  @keyframes bounceDot {
+    0%, 100% { transform: translateY(0); opacity: 0.6; }
+    50%      { transform: translateY(-10px); opacity: 1; }
+  }
+  
   

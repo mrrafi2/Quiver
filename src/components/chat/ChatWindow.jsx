@@ -3,7 +3,7 @@ import { ref, onValue, push, set, remove } from 'firebase/database';
 import { realtimeDB } from '../../services/Firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import ChatSidebar from './Sidebar';
-import Message from './Massage'; 
+import Message, {ChattyLoader} from './Massage'; 
 import ParticleThemes from './particleTheme';
 import FloatingActionBar from './FloatingActionBar';
 import styles from '../../styles/ChatWindow.module.css';
@@ -25,6 +25,7 @@ export default function ChatWindow() {
   const [showControls, setShowControls] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(true); 
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [loadingConvo, setLoadingConvo] = useState(false); 
 
 
 
@@ -67,12 +68,16 @@ export default function ChatWindow() {
 
   useEffect(() => {
     if (!conversationId) return;
-    const msgsRef = ref(realtimeDB, `conversations/${conversationId}/messages`);
-    return onValue(msgsRef, snap => {
-      const val = snap.val() || {};
-      setMessages(Object.entries(val).map(([id, msg]) => ({ id, ...msg })));
-    });
-  }, [conversationId]);
+       setLoadingConvo(true);                 
+       const msgsRef = ref(realtimeDB, `conversations/${conversationId}/messages`);
+       return onValue(msgsRef, snap => {
+        const val = snap.val() || {};
+         setMessages(Object.entries(val).map(([id, msg]) => ({ id, ...msg })));
+         setLoadingConvo(false);               
+       });
+     }, [conversationId]);
+
+
 
   useEffect(() => {
     if (!conversationId || !selectedFriend) return;
@@ -167,7 +172,6 @@ export default function ChatWindow() {
       <ParticleThemes theme={theme} />
   
       {isMobile ? (
-        // —— MOBILE LAYOUT ——
         <div className={styles.chatMain}>
           {isSidebarOpen ? (
             // Friends list
@@ -296,9 +300,8 @@ export default function ChatWindow() {
                 ))}
                 <div ref={messagesEndRef} />
               </div>
-  
-              {/* Send bar */}
-              <FloatingActionBar onSend={handleSendMessage} onType={handleTyping} />
+             
+
             </>
           ) : (
             // No friend selected on mobile
@@ -306,6 +309,11 @@ export default function ChatWindow() {
               Please select a friend to start chatting.
             </div>
           )}
+
+            <div className={styles.fabMobile}>
+             <FloatingActionBar onSend={handleSendMessage} onType={handleTyping} />
+             </div>
+
         </div>
       ) : (
         <>
@@ -398,7 +406,10 @@ export default function ChatWindow() {
                   className={styles.messagesArea}
                   onScroll={handleScroll}
                 >
-                  {messages.map(msg => (
+                  { loadingConvo ? (
+                    <ChattyLoader/>
+                  ) : (
+                  messages.map(msg => (
                     <Message
                       key={msg.id}
                       {...msg}
@@ -415,12 +426,14 @@ export default function ChatWindow() {
                       seen={msg.timestamp <= friendSeenTs}
                       theme={theme}
                     />
-                  ))}
+                  ))
+                )}
                   <div ref={messagesEndRef} />
                 </div>
   
-                {/* Send bar */}
+               <div style={{position:'sticky', bottom:"0px"}}>
                 <FloatingActionBar onSend={handleSendMessage} onType={handleTyping} />
+                </div>
               </>
             ) : (
               <div className={styles.noSelection}>

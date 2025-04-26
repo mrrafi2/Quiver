@@ -1,4 +1,3 @@
-/* FloatingActionBar.module.css */
 .floatingBar {
     display: flex;
     align-items: center;
@@ -7,7 +6,7 @@
     border-top: 1px solid #34495e;
     position:sticky;
     bottom: 0px;
-    z-index: 10;
+    z-index: 1000;
   }
   
   .inputBox {
@@ -139,7 +138,7 @@
   
     .iconBtn {
       padding: 6px;
-      margin-right: 8px;
+      margin-right: 7px;
     }
   
     .inputBox {
@@ -147,7 +146,7 @@
       margin: 0 8px;
       padding: 8px 12px;
       font-size: 0.9rem;
-      border-radius: 20px;
+      border-radius: 6px;
     }
   
     .sendBtn {

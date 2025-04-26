@@ -22,6 +22,7 @@ export default function Signup() {
   const [confirmPasswordVisible, setConfirmPasswordVisible] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
   function handleChange(e) {
     const { name, value, type, checked } = e.target;
@@ -44,7 +45,8 @@ export default function Signup() {
     try {
       setLoading(true);
       await signup(email, password, username, phoneNumber, gender);
-      navigate("/profile");
+      setSuccess(true);
+      setTimeout(() => navigate("/profile"), 800);
     } catch (err) {
       setError(err.message);
       setLoading(false);
@@ -52,12 +54,17 @@ export default function Signup() {
   }
 
   return (
-    <div className={styles.signupContainer}>
-      <h2 style={{textAlign:'center'}}>Register Account</h2>
+    <div
+      className={`${styles.signupContainer} ${
+        success ? styles.successContainer : ""
+      }`}
+    >
+      <h2 className={styles.title}>Register Account</h2>
       <br />
       {error && <p className={styles.error}>{error}</p>}
-      <form onSubmit={handleSubmit}>
-
+  
+      <form onSubmit={handleSubmit} className={styles.form}>
+        {/* 1) Username - always visible */}
         <div className={styles.chatBubble}>
           <input
             type="text"
@@ -66,108 +73,139 @@ export default function Signup() {
             value={formData.username}
             onChange={handleChange}
             required
+            minLength={3}               // so :valid kicks in after 3 chars
           />
           <span className={styles.checkmark} />
         </div>
-
-        <div className={styles.chatBubble}>
-          <input
-            type="email"
-            name="email"
-            placeholder="Drop your email..."
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-          <span className={styles.checkmark} />
-        </div>
-
-        <div className={`${styles.passwordWrapper} ${styles.chatBubble}`}>         
-          <input
-            type={passwordVisible ? "text" : "password"}
-            name="password"
-            placeholder="Choose a secret code"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <span onClick={() => setPasswordVisible(!passwordVisible)}>
-            {passwordVisible ? <FaEyeSlash /> : <FaEye />}
-          </span>
-          <span className={styles.checkmark} />
-        </div>
-
-        <div className={`${styles.passwordWrapper} ${styles.chatBubble}`}>         
-          <input
-            type={confirmPasswordVisible ? "text" : "password"}
-            name="confirmPassword"
-            placeholder="Confirm your code"
-            value={formData.confirmPassword}
-            onChange={handleChange}
-            required
-          />
-          <span onClick={() => setConfirmPasswordVisible(!confirmPasswordVisible)}>
-            {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
-          </span>
-          <span className={styles.checkmark} />
-        </div>
-
-        <div className={styles.chatBubble}>
-          <input
-            type="tel"
-            name="phoneNumber"
-            placeholder="Your Phone digits"
-            value={formData.phoneNumber}
-            onChange={handleChange}
-            required
-          />
-          <span className={styles.checkmark} />
-        </div>
-
-        <div className={`${styles.genderContainer} ${styles.chatBubble}`}>          
-          <label>
+  
+        {/* 2) Email - only show when username is valid */}
+        {formData.username.trim().length >= 3 && (
+          <div className={styles.chatBubble}>
             <input
-              type="radio"
-              name="gender"
-              value="Male"
-              checked={formData.gender === "Male"}
+              type="email"
+              name="email"
+              placeholder="Drop your email..."
+              value={formData.email}
               onChange={handleChange}
               required
             />
-            Male
-          </label>
-          <label>
+            <span className={styles.checkmark} />
+          </div>
+        )}
+  
+        {/* 3) Password - only show when email is valid */}
+        {/\S+@\S+\.\S+/.test(formData.email) && (
+          <div className={`${styles.passwordWrapper} ${styles.chatBubble}`}>
             <input
-              type="radio"
-              name="gender"
-              value="Female"
-              checked={formData.gender === "Female"}
+              type={passwordVisible ? "text" : "password"}
+              name="password"
+              placeholder="Choose a secret code"
+              value={formData.password}
               onChange={handleChange}
               required
+              minLength={6}              // valid after 6 chars
             />
-            Female
-          </label>
-          <label>
+            <span
+              className={styles.eyeIcon}
+              onClick={() => setPasswordVisible((v) => !v)}
+            >
+              {passwordVisible ? <FaEyeSlash /> : <FaEye />}
+            </span>
+            <span className={styles.checkmark} />
+          </div>
+        )}
+  
+        {formData.password.length >= 6 && (
+          <div className={`${styles.passwordWrapper} ${styles.chatBubble}`}>
             <input
-              type="radio"
-              name="gender"
-              value="Other"
-              checked={formData.gender === "Other"}
+              type={confirmPasswordVisible ? "text" : "password"}
+              name="confirmPassword"
+              placeholder="Confirm your code"
+              value={formData.confirmPassword}
               onChange={handleChange}
               required
+              pattern={formData.password.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}
+              title="Must match password"
             />
-            Other
-          </label>
-        </div>
-
-        <button
-          type="submit"
-          className={styles.signupButton}
-          disabled={loading}
-        >
-          Register
-        </button>
+            <span
+              className={styles.eyeIcon}
+              onClick={() => setConfirmPasswordVisible((v) => !v)}
+            >
+              {confirmPasswordVisible ? <FaEyeSlash /> : <FaEye />}
+            </span>
+            <span className={styles.checkmark} />
+          </div>
+        )}
+  
+        {/* 5) Phone Number - once passwords match */}
+        {formData.confirmPassword === formData.password &&
+          formData.confirmPassword !== "" && (
+            <div className={styles.chatBubble}>
+              <input
+                type="tel"
+                name="phoneNumber"
+                placeholder="Your phone digits"
+                value={formData.phoneNumber}
+                onChange={handleChange}
+                required
+                pattern="^\+?\d{7,15}$"
+                title="Enter 7–15 digits"
+              />
+              <span className={styles.checkmark} />
+            </div>
+          )}
+  
+        {/^\+?\d{7,15}$/.test(formData.phoneNumber) && (
+          <div className={`${styles.genderContainer} ${styles.chatBubble}`}>
+            <label>
+              <input
+                type="radio"
+                name="gender"
+                value="Male"
+                checked={formData.gender === "Male"}
+                onChange={handleChange}
+                required
+              />
+              Male
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="gender"
+                value="Female"
+                checked={formData.gender === "Female"}
+                onChange={handleChange}
+                required
+              />
+              Female
+            </label>
+            <label>
+              <input
+                type="radio"
+                name="gender"
+                value="Other"
+                checked={formData.gender === "Other"}
+                onChange={handleChange}
+                required
+              />
+              Other
+            </label>
+          </div>
+        )}
+  
+        {formData.gender && (
+          <button
+            type="submit"
+            className={styles.signupButton}
+            disabled={loading || success}
+            value="Register"
+          >
+            {"Register"}
+            {!loading && !success && "Register"} 
+          </button>
+        )}
       </form>
     </div>
   );
+  
 }

@@ -210,6 +210,8 @@ export default function Login() {
           Login with Google
         </motion.button>
 
+        <br />
+
         <p className={styles.registerLink}>
           Don’t have an account?{" "}
           <Link to="/register">Register here</Link>

@@ -59,7 +59,6 @@ const FriendRequestsPanel = ({ onClose }) => {
       const requesterFriendRef = ref(realtimeDB, `friends/${requesterUid}/${currentUser.uid}`);
       await set(userFriendRef, { friend: true, since: Date.now() });
       await set(requesterFriendRef, { friend: true, since: Date.now() });
-      // Remove friend request after acceptance
       const reqRef = ref(realtimeDB, `friendRequests/${currentUser.uid}/${requesterUid}`);
       await remove(reqRef);
       alert("Friend request accepted!");
@@ -110,7 +109,17 @@ const FriendRequestsPanel = ({ onClose }) => {
         )}
       </div>
       <div className={styles.section}>
-        <h4>Your Friends</h4>
+        <h4 style={{
+
+marginTop: "17px",
+color:" #3b9ae3",
+borderBottom: '1px solid #ddd',
+paddingBottom:'10px',
+marginBottom:' 15px'
+
+        }}
+        
+        >Your Friends</h4>
         {friends.length === 0 ? (
           <p>No friends yet.</p>
         ) : (

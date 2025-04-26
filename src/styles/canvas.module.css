@@ -44,13 +44,17 @@
     display: flex;
     justify-content: center;
     padding: 16px 0;
+
   }
   .slider {
     -webkit-appearance: none;
     width: 120px;
+    height: 20px;
     transform: rotate(-90deg);
     cursor: pointer;
+    background-color: #000000;
   }
+
   .slider::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 16px; height: 16px;
@@ -58,7 +62,6 @@
     border-radius: 50%;
   }
   
-  /* Section: color pickers */
   .colorSection {
     display: flex;
     flex-direction: column;

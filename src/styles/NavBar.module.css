@@ -183,16 +183,16 @@
   @media (max-width: 480px) {
     .navbar {
       padding: 8px 12px;
-      height: 70px;
+      height: 72px;
       z-index: 200;
     }
   
     .logo {
-      font-size: 1.4rem;
+      font-size: 1.5rem;
     }
   
     .navLinks {
-      gap: 10px;
+      gap: 15px;
       overflow-x: auto;
     }
   
@@ -210,8 +210,8 @@
     }
   
     .profilePic {
-      width: 30px;
-      height: 30px;
+      width: 32px;
+      height: 32px;
     }
   
     .badge {

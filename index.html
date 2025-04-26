@@ -2,25 +2,67 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
-
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_GOOGLE_API_KEY&libraries=places"></script>
-
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap" rel="stylesheet">
+    <link rel="icon" href="/public/favicon.ico" />
 
     <title>Quiver</title>
+
+
+
+    <!-- SEO Meta -->
+    <meta name="description" content="Quiver – Real-time chat that makes your conversations come alive. Lightning-fast, beautifully simple, and made for you." />
+    <meta name="keywords" content="chat, messaging, real-time chat, social app, online messaging, Quiver chat" />
+    <meta name="author" content="Quiver Team" />
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://quiver-chat.vercel.app/" />
+    <meta property="og:title" content="Quiver - Where Conversations Come Alive" />
+    <meta property="og:description" content="Real-time, vibing conversations. Meet Quiver, the next evolution of chat." />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:url" content="https://quiver-chat.vercel.app/" />
+    <meta name="twitter:title" content="Quiver - Where Conversations Come Alive" />
+    <meta name="twitter:description" content="Real-time, vibing conversations. Meet Quiver, the next evolution of chat." />
+    <meta name="twitter:image" content="/og-image.png" />
+
+    <!-- PWA Meta -->
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#7F00FF" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Quiver" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Fonts and Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha512-Evv84Mr4kqVGRNSgIGL/F/aIDqQb7xQ2vcrdIwxfjThSH8CSR7PBEakCr51Ck+w+/U6swU2Im1vVX0SVk9ABhg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Crimson+Text:wght@400;600;700&display=swap" rel="stylesheet" />
+
+    <!-- Viewport and Compatibility -->
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="referrer" content="no-referrer-when-downgrade" />
   </head>
+  
   <body>
     <div id="root"></div>
+
     <script type="module" src="/src/main.jsx"></script>
+
+    <!-- Register Service Worker -->
+    <script>
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').then(function(registration) {
+          console.log('Service Worker registered with scope:', registration.scope);
+        }).catch(function(error) {
+          console.log('Service Worker registration failed:', error);
+        });
+      }
+    </script>
   </body>
 </html>

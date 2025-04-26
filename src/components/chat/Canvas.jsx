@@ -83,7 +83,7 @@ export default function CanvasDrawer({ onSend }) {
   
         {/* Tool icons */}
         <div className={styles.toolSection}>
-          {['pencil', 'pen', 'marker', 'brush', 'eraser', 'text'].map(t => (
+          {['pencil', 'pen', 'marker', 'brush', 'eraser', ].map(t => (
             <button
               key={t}
               className={`${styles.toolBtn} ${tool === t ? styles.activeTool : ''}`}
@@ -96,14 +96,15 @@ export default function CanvasDrawer({ onSend }) {
                 marker: '🖊️',
                 brush: '🖌️',
                 eraser: '🧽',
-                text: '🔤'
+                
               }[t]}
             </button>
           ))}
         </div>
   
         <br />
-  
+        <br />
+           
         {/* Size slider */}
         <div className={styles.sliderSection}>
           <input
@@ -115,6 +116,7 @@ export default function CanvasDrawer({ onSend }) {
         </div>
   
         <br />
+        <br />
   
         {/* Color pickers */}
         <div className={styles.colorSection}>
@@ -124,6 +126,9 @@ export default function CanvasDrawer({ onSend }) {
             className={styles.colorPicker}
             title="Stroke color"
           />
+          <br />
+
+          <span  className='text-muted fw-bold'>BG</span>
           <input
             type="color" value={bgColor}
             onChange={e => {

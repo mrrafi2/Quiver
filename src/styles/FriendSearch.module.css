@@ -105,7 +105,6 @@
     border: 2px solid #00d8ff;
   }
   
-  /* Basic result info styling */
   .resultInfo {
     flex: 1;
   }
@@ -151,6 +150,56 @@
     font-weight: bold;
     font-size: 0.9rem;
   }
+
+  /* Modern custom scrollbar */
+.resultsList::-webkit-scrollbar {
+    width: 6px;
+  }
+  
+  .resultsList::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.1);
+    border-radius: 3px;
+  }
+  
+  .resultsList::-webkit-scrollbar-thumb {
+    background: rgba(0,216,255,0.5);
+    border-radius: 3px;
+    border: 1px solid rgba(255,255,255,0.2);
+  }
+  
+  .resultsList::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,216,255,0.8);
+  }
+  
+  .portalContent::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  .portalContent::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.05);
+    border-radius: 4px;
+  }
+  
+  .portalContent::-webkit-scrollbar-thumb {
+    background: rgba(0,216,255,0.4);
+    border-radius: 4px;
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+  
+  .portalContent::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,216,255,0.7);
+  }
+  
+  .resultsList {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,216,255,0.5) rgba(255,255,255,0.1);
+  }
+  
+  .portalContent {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,216,255,0.4) rgba(255,255,255,0.05);
+  }
+  
   
   @media (max-width: 768px) {
     .portalContent {
@@ -175,7 +224,7 @@
     }
   
     .resultsList {
-      max-height: 300px;
+      max-height: 500px;
     }
   
     .resultItem {

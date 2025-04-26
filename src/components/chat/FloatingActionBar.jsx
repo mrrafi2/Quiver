@@ -125,6 +125,7 @@ export default function FloatingActionBar({ onSend, onType }) {
         >
           <i className="fa-solid fa-image"></i>
         </motion.button>
+        
         <motion.button
           className={styles.iconBtn}
           style={{ backgroundColor: '#eee', borderRadius: '7px' }}
@@ -149,7 +150,7 @@ export default function FloatingActionBar({ onSend, onType }) {
           onChange={e => handleInputChange(e.target.value)}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholder="Type your message..."
+          placeholder="Type here..."
           className={`${styles.inputBox} ${isFocused ? styles.inputFocused : ''}`}
           style={{ overflow: 'auto' }}
         />

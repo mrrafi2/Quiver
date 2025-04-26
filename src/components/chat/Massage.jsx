@@ -172,8 +172,24 @@ export default function Message({
 
       <div className={styles.meta}>
         {mood?.emoji && <span className={styles.moodTag}>{mood.emoji}</span>}
+
         <span className={styles.time}>{timeString}</span>
         {isOwn && seen && <span className={styles.seenIndicator}>✓ Seen</span>}
+
+        {isOwn && reaction && (
+  <span className={styles.friendReaction}> {/* ✨ ADDED */}
+    <motion.span
+      initial={{ scale: 0 }}
+      animate={{ scale: 1 }}
+      transition={{ type: 'spring', stiffness: 300 }}
+      className={styles.friendReactionEmoji}
+    >
+      {reaction}
+    </motion.span>
+  </span>
+)}
+
+
         {isOwn && (
           <button
             className={styles.deleteBtn}
@@ -216,5 +232,17 @@ export default function Message({
         document.body
       )}
     </>
+  );
+}
+
+export function ChattyLoader() {
+  return (
+    <div className={styles.chattyLoader}>
+      <div className={styles.loaderBubble}>
+        <span className={styles.loaderDot} />
+        <span className={styles.loaderDot} /> 
+        <span className={styles.loaderDot} /> 
+      </div>
+    </div>
   );
 }
