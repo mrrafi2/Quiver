@@ -366,7 +366,7 @@
     background: rgba(0,0,0,0.85);
     display: flex;
     justify-content: center;
-    z-index: 50;         
+    z-index: 10;         
   }
   
   

@@ -1,15 +1,17 @@
 {
-  "name": "MyWebSite",
-  "short_name": "MySite",
+  "name": "Quiver-Chat",
+  "short_name": "Social Media",
+  "start_url": "/",
+  "description": "Quiver - Real-time chat that makes your conversations come alive.",
   "icons": [
     {
-      "src": "/chat-favicon/./web-app-manifest-192x192.png",
+      "src": "/web-app-manifest-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "maskable"
     },
     {
-      "src": "/chat-favicon/./web-app-manifest-512x512.png",
+      "src": "/web-app-manifest-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"

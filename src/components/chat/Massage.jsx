@@ -59,7 +59,7 @@ export default function Message({
 
   useEffect(() => {
     if (!whisper) return;
-    const t = setTimeout(() => onDelete(id, user), 5000);
+    const t = setTimeout(() => onDelete(id, user), 8000);
     return () => clearTimeout(t);
   }, [whisper, id, user, onDelete]);
 

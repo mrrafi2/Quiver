@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import CanvasDrawer from './Canvas';
+import CanvasOverlay from './CanvasOverlay';
 import VoiceMessage from './VoiceMassage';
 import { uploadToCloudinary } from '../../services/Cloudinary';
 import styles from '../../styles/actionBar.module.css';
@@ -86,7 +86,7 @@ export default function FloatingActionBar({ onSend, onType }) {
 
       <AnimatePresence>
         {showCanvas && (
-          <CanvasDrawer
+          <CanvasOverlay
             onSend={msg => { onSend?.(msg); setShowCanvas(false); }}
             onClose={() => setShowCanvas(false)}
           />
@@ -127,13 +127,26 @@ export default function FloatingActionBar({ onSend, onType }) {
         </motion.button>
         
         <motion.button
-          className={styles.iconBtn}
-          style={{ backgroundColor: '#eee', borderRadius: '7px' }}
-          onClick={() => setShowCanvas(s => !s)}
-          whileHover={{ scale: 1.1 }}
-        >
-          🖌️
-        </motion.button>
+  className={styles.iconBtn}
+  style={{
+    backgroundColor: showCanvas ? '#ffe680' : '#eeeeee',
+    borderRadius: '50%',
+    padding: '10px',
+    boxShadow: showCanvas
+      ? '0 0 12px 2px rgba(255, 223, 0, 0.7)'
+      : '0 2px 8px rgba(0,0,0,0.2)',
+    transition: 'all 0.3s ease',
+  }}
+  onClick={() => setShowCanvas(prev => !prev)}
+  
+  whileHover={{ scale: 1.15 }}
+  whileTap={{ scale: 0.95 }}
+  animate={{ rotate: showCanvas ? 90 : 0 }}
+>
+  🎨
+</motion.button>
+
+
         <motion.button
           className={styles.iconBtn}
           onClick={() => setShowVoice(s => !s)}
