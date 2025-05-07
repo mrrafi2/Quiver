@@ -7,15 +7,15 @@
 ## 🚀 Why Quiver?
 
 * **Instant Vibes**: Real‑time messaging powered by **Socket.IO**—no more waiting for replies. ⚡
-* 
+  
 * **Sketch & Share**: Unleash your inner artist with **react‑sketch‑canvas** and **Fabric.js** integration. Draw it, send it, love it. 🎨
-* 
+  
 * **Voice Remix**: Record and play with audio via **Tone.js**—think voice messages with a twist. 🎛️
-* 
+  
 * **Glow & Pop**: Eye‑candy UI animations courtesy of **Framer Motion** and **tsparticles**. Your chat never looked so lit. ✨
-* 
+  
 * **Cloud‑power**: Media uploads (images, sketches) handled by **Cloudinary**—fast, reliable, and scalable. ☁️
-* 
+  
 * **Rock‑solid Backend**: **Firebase** for Auth, Firestore, and Storage—security you can trust. 🔒
 
 ---
@@ -43,7 +43,7 @@
 1. **Clone this arrow**
 
    ```bash
-   git clone https://github.com/your‑username/quiver.git
+   git clone git@github.com:mrrafi2/Quiver.git
    cd quiver
    ```
 2. **Install dependencies**
