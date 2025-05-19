@@ -223,7 +223,7 @@ export default function ChatWindow() {
                   onClick={() => setShowControls(v => !v)}
                   aria-label="Toggle controls"
                 >
-                  <Menu />
+                  <i className="fa-solid fa-caret-down"></i>
                 </button>
   
                 <div className={styles.controlPanel}>

@@ -94,7 +94,6 @@ const FriendRequestsPanel = ({ onClose }) => {
               />
               <div className={styles.requestInfo}>
                 <span className={styles.requestName}>{request.displayName}</span>
-                <span className={styles.requestTime}>{new Date(request.timestamp).toLocaleString()}</span>
               </div>
               <motion.button
                 whileHover={{ scale: 1.05 }}

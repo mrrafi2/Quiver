@@ -151,7 +151,6 @@
     font-size: 0.9rem;
   }
 
-  /* Modern custom scrollbar */
 .resultsList::-webkit-scrollbar {
     width: 6px;
   }
