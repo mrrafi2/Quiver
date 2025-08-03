@@ -1,258 +1,280 @@
+.portalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.portalContent {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: hidden;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 255, 255, 0.2);
+  animation: slideUp 0.3s ease-out;
+  position: relative;
+}
+
+.portalContent::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 100px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0.05;
+  z-index: 0;
+}
+
+.portalContent > * {
+  position: relative;
+  z-index: 1;
+}
+
+.closeButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 18px;
+  z-index: 2;
+}
+
+.closeButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.1);
+}
+
+.searchInput {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16px;
+  padding: 16px 20px;
+  font-size: 16px;
+  color: #1a1a1a;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: #667eea;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+  transform: translateY(-2px);
+}
+
+.searchInput::placeholder {
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+.resultsList {
+  max-height: 500px;
+  overflow-y: auto;
+  display: grid;
+  gap: 12px;
+  padding-right: 8px;
+}
+
+.resultsList::-webkit-scrollbar {
+  width: 6px;
+}
+
+.resultsList::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 3px;
+}
+
+.resultsList::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 3px;
+}
+
+.resultItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.resultItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.resultPic {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.resultItem:hover .resultPic {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+}
+
+.resultInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.resultName {
+  font-size: 16px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.resultLocation {
+  font-size: 14px;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.friendBadge {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  padding: 6px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.requestButton {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+  white-space: nowrap;
+}
+
+.requestButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
+  background: linear-gradient(135deg, #5a6fd8, #6b46c1);
+}
+
+.requestButton:disabled {
+  background: linear-gradient(135deg, #9ca3af, #6b7280);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.requestButton:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
 @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
+  from {
+    opacity: 0;
   }
-  
-  @keyframes slideUp {
-    from { transform: translateY(30px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
+  to {
+    opacity: 1;
   }
-  
-  /* Overlay styling - Dark cosmic backdrop */
-  .portalOverlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: rgba(10, 10, 20, 0.95);
-    display: flex;
-    justify-content: center;
-    z-index: 1200;
-    animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
   }
-  
-  /* Content container styling - Futuristic gradient with neon hints */
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+@media (max-width: 768px) {
   .portalContent {
-    background: linear-gradient(135deg, #1f1c2c, #928dab);
-    padding: 40px 40px;
-    border-radius: 12px;
-    width: 90%;
-    max-width: 900px;
-    position: relative;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.85);
-    animation: slideUp 0.4s ease-out;
-    border: 2px solid rgba(0, 255, 255, 0.5);
+    padding: 20px;
+    max-width: 95%;
+    max-height: 90vh;
   }
   
-  /* Close button styling - Neon alert with a smooth hover shift */
-  .closeButton {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: #00d8ff;
-    border: none;
-    font-size: 18px;
-    font-weight: bold;
-    color: #1f1c2c;
-    width: 35px;
-    height: 35px;
-    border-radius: 50%;
-    cursor: pointer;
-    transition: background 0.2s ease;
-  }
-  
-  .closeButton:hover {
-    background: #00a0cc;
-  }
-  
-  /* Search input styling - Sleek, minimalist, with a futuristic edge */
   .searchInput {
-    width: 100%;
-    padding: 12px 15px;
-    font-size: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.8);
-    border-radius: 8px;
-    outline: none;
-    margin-bottom: 20px;
-    background: rgba(20, 20, 40, 0.7);
-    color: #e0e0e0;
-    transition: border-color 0.2s ease, background 0.2s ease;
+    padding: 14px 16px;
+    font-size: 15px;
   }
   
-  .searchInput:focus {
-    border-color: #00d8ff;
-    background: rgba(20, 20, 40, 0.9);
-  }
-  
-  /* Results list styling - Smooth fade in with a dark aesthetic */
-  .resultsList {
-    max-height: 400px;
-    overflow-y: auto;
-    animation: fadeIn 0.3s ease;
-  }
-  
-  /* Single result item styling - Futuristic layout with interactive hover effect */
   .resultItem {
-    display: flex;
-    align-items: center;
-    padding: 15px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    transition: background-color 0.2s ease;
+    padding: 12px;
+    gap: 12px;
   }
   
-  .resultItem:hover {
-    background-color: rgba(0, 0, 0, 0.3);
-  }
-  
-  /* Profile picture styling - Futuristic frames for a sharp look */
   .resultPic {
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    margin-right: 15px;
-    object-fit: cover;
-    border: 2px solid #00d8ff;
-  }
-  
-  .resultInfo {
-    flex: 1;
+    width: 45px;
+    height: 45px;
   }
   
   .resultName {
-    font-weight: bold;
-    color: #fff;
-    display: block;
+    font-size: 15px;
   }
   
   .resultLocation {
-    font-size: 14px;
-    color: #b0b0d0;
+    font-size: 13px;
   }
   
   .requestButton {
-    background: #00d8ff;
-    border: none;
-    padding: 5px 10px;
-    border-radius: 5px;
-    cursor: pointer;
-    color: #1f1c2c;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 12px;
-    margin-right: 15px;
+    padding: 8px 16px;
+    font-size: 13px;
   }
-  
-  .requestButton:hover:not(:disabled) {
-    background: #00a0cc;
-  }
-  
-  .requestButton:disabled {
-    background: #555a6e;
-    cursor: not-allowed;
-  }
-  
-  .friendBadge {
-    background: #00d8ff;
-    color: #1f1c2c;
-    padding: 5px 10px;
-    border-radius: 5px;
-    font-weight: bold;
-    font-size: 0.9rem;
-  }
-
-.resultsList::-webkit-scrollbar {
-    width: 6px;
-  }
-  
-  .resultsList::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.1);
-    border-radius: 3px;
-  }
-  
-  .resultsList::-webkit-scrollbar-thumb {
-    background: rgba(0,216,255,0.5);
-    border-radius: 3px;
-    border: 1px solid rgba(255,255,255,0.2);
-  }
-  
-  .resultsList::-webkit-scrollbar-thumb:hover {
-    background: rgba(0,216,255,0.8);
-  }
-  
-  .portalContent::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .portalContent::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.05);
-    border-radius: 4px;
-  }
-  
-  .portalContent::-webkit-scrollbar-thumb {
-    background: rgba(0,216,255,0.4);
-    border-radius: 4px;
-    border: 1px solid rgba(255,255,255,0.1);
-  }
-  
-  .portalContent::-webkit-scrollbar-thumb:hover {
-    background: rgba(0,216,255,0.7);
-  }
-  
-  .resultsList {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0,216,255,0.5) rgba(255,255,255,0.1);
-  }
-  
-  .portalContent {
-    scrollbar-width: thin;
-    scrollbar-color: rgba(0,216,255,0.4) rgba(255,255,255,0.05);
-  }
-  
-  
-  @media (max-width: 768px) {
-    .portalContent {
-      padding: 20px;
-      width: 95%;
-      max-width: none;
-    }
-  
-    .closeButton {
-      width: 30px;
-      height: 30px;
-      font-size: 15px;
-      top: 4px;
-      right: 4px;
-    }
-  
-    .searchInput {
-      font-size: 16px;
-      padding: 10px 12px;
-      margin-bottom: 25px;
-      margin-top: 22px;
-    }
-  
-    .resultsList {
-      max-height: 500px;
-    }
-  
-    .resultItem {
-      padding: 10px 0;
-    }
-  
-    .resultPic {
-      width: 40px;
-      height: 40px;
-      margin-right: 10px;
-    }
-  
-    .resultInfo .resultName {
-      font-size: 1rem;
-    }
-  
-    .resultLocation {
-      font-size: 12px;
-    }
-  
-    .requestButton {
-      padding: 4px 8px;
-      font-size: 10px;
-      margin-right: 10px;
-    }
-  
-    .friendBadge {
-      padding: 4px 8px;
-      font-size: 0.8rem;
-    }
-  }
-  
+}

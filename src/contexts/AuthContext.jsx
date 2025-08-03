@@ -115,6 +115,10 @@ import {
           avatarIcon: null,
           avatarBgColor: null,
           isSeller: false,
+          languages: [],
+  socialLinks: {facebook: "", linkedin: "", twitter: "", github: "" },
+        coverUrl: null,
+         education: [] 
         };
   
         if (!userSnapshot.exists()) {
@@ -140,18 +144,23 @@ import {
       return signOut(auth);
     }
   
-    // Updated updateUser function to handle additional profile fields
+    // updated updateUser function to handle additional profile fields
     async function updateUser(
       newDisplayName,
       newProfilePicFile,
+      newCoverFile,
       newBio,
       newLocation,
-      newEducation,
-      newHobby, // Array of hobbies
+      newHobby, 
       newRelationship,
       newDateOfBirth,   
+      newGender,
         newOccupation,  
-      newAvatarBgColor = currentUser?.avatarBgColor || "" // Set a default if not provided
+        newLanguages,        
+    newSocialLinks,
+    newEducationArray,
+    newAvatarBgColor = currentUser?.avatarBgColor || "",
+
     ) {
       const auth = getAuth();
       if (auth.currentUser) {
@@ -163,6 +172,11 @@ import {
           // Retain the current profile picture if none is selected
           newAvatarIcon = currentUser?.avatarIcon || null;
         }
+
+        let newCoverUrl = currentUser?.coverUrl || null;
+if (newCoverFile) {
+  newCoverUrl = await uploadToCloudinary(newCoverFile);
+}
   
         try {
           // Update Firebase Auth profile (only displayName and photoURL are supported)
@@ -182,13 +196,17 @@ import {
           await update(ref(realtimeDB, `users/${auth.currentUser.uid}`), {
             displayName: newDisplayName,
             bio: newBio,
+            coverUrl: newCoverUrl,
             location: newLocation,
-            education: newEducation,
             hobby: newHobby, 
             relationship: newRelationship,
             avatarIcon: newAvatarIcon,
             dateOfBirth: newDateOfBirth,
+            gender:   newGender,
             occupation: newOccupation,
+             languages:      newLanguages,    
+            socialLinks:    newSocialLinks,
+            education: newEducationArray,
             avatarBgColor: newAvatarBgColor,
           });
         } catch (err) {
@@ -199,16 +217,21 @@ import {
         setCurrentUser((prevUser) => ({
           ...prevUser,
           displayName: newDisplayName,
+          coverUrl: newCoverUrl,
           bio: newBio,
           location: newLocation,
-          education: newEducation,
           hobby: newHobby,
           relationship: newRelationship,
-          dateOfBirth: newDateOfBirth,  
+          dateOfBirth: newDateOfBirth,
+          gender: newGender,  
            occupation: newOccupation,
+            languages: newLanguages,  
+           socialLinks: newSocialLinks, 
+          education: newEducationArray,
           avatarIcon: newAvatarIcon,
           avatarBgColor: newAvatarBgColor,
-        }));
+        } )
+      );
       }
     }
   

@@ -203,10 +203,27 @@ const FriendProfile = () => {
           <span className={styles.detailLabel}>Location:</span>
           <span className={styles.detailValue}>{friendData.location || "Not provided"}</span>
         </div>
+
         <div className={styles.detailItem}>
-          <span className={styles.detailLabel}>Education:</span>
-          <span className={styles.detailValue}>{friendData.education || "Not provided"}</span>
-        </div>
+  <span className={styles.detailLabel}>Education:</span>
+  <span className={styles.detailValue}>
+    {Array.isArray(friendData.education) && friendData.education.length > 0 ? (
+      <ul className={styles.educationList}>
+        {friendData.education.map((edu, index) => (
+          <li key={index}>
+            <strong>{edu.degree || "Degree not specified"}</strong> at <em>{edu.school || "Unknown school"}</em> 
+            {edu.start && (
+              <> ({edu.start} - {edu.end || "Present"})</>
+            )}
+          </li>
+        ))}
+      </ul>
+    ) : (
+      "Not provided"
+    )}
+  </span>
+</div>
+
 
         <div className={styles.detailItem}>
           <span className={styles.detailLabel}>Date of Birth:</span>
@@ -223,6 +240,33 @@ const FriendProfile = () => {
           <span className={styles.detailLabel}>Relationship:</span>
           <span className={styles.detailValue}>{friendData.relationship || "Not provided"}</span>
         </div>
+
+        <div className={styles.detailItem}>
+  <span className={styles.detailLabel}>Language(s):</span>
+  <span className={styles.detailValue}>
+    {friendData.language && friendData.language.length > 0 
+      ? Array.isArray(friendData.language) 
+        ? friendData.language.join(", ") 
+        : friendData.language 
+      : "Not provided"}
+  </span>
+</div>
+
+<div className={styles.detailItem}>
+  <span className={styles.detailLabel}>Social Media:</span>
+  <span className={styles.detailValue}>
+    {friendData.social 
+      ? typeof friendData.social === "object"
+        ? Object.entries(friendData.social).map(([platform, link]) => (
+            <div key={platform}>
+              <strong>{platform}:</strong> <a href={link} target="_blank" rel="noreferrer">{link}</a>
+            </div>
+          ))
+        : friendData.social
+      : "Not provided"}
+  </span>
+</div>
+
       </div>
     </motion.div>
   );

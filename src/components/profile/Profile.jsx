@@ -1,13 +1,17 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { motion } from "framer-motion";
  import { Camera } from "lucide-react";
 import styles from "../../styles/Profile.module.css";
 import {Link} from "react-router-dom"
+import { Linkedin, Twitter, Github, Facebook } from "lucide-react";
+import { useDropzone } from "react-dropzone";
+
 
 const DEFAULT_PROFILE_PIC = "https://via.placeholder.com/150?text=User";
 
 export default function Profile() {
+
   const { currentUser, updateUser } = useAuth();
 
   // Local state for editable fields
@@ -16,7 +20,12 @@ export default function Profile() {
   const [profilePicFile, setProfilePicFile] = useState(null);
   const [bio, setBio] = useState(currentUser?.bio || "");
   const [location, setLocation] = useState(currentUser?.location || "");
-  const [education, setEducation] = useState(currentUser?.education || "");
+
+ const [education, setEducation] = useState(
+   Array.isArray(currentUser?.education) 
+     ? currentUser.education 
+     : []
+ );
   const [hobby, setHobby] = useState(
     currentUser?.hobby
       ? (Array.isArray(currentUser.hobby) ? currentUser.hobby : [currentUser.hobby])
@@ -27,6 +36,20 @@ export default function Profile() {
   const [gender, setGender] = useState(currentUser?.gender || "");
   const [occupation, setOccupation] = useState(currentUser?.occupation || "");
 
+  const [langDraft, setLangDraft] = useState("");
+  const [languages, setLanguages] = useState(currentUser?.languages || [ ]);
+const [socialLinks, setSocialLinks]   = useState(currentUser?.socialLinks || {
+ facebook: "", linkedin: "", twitter: "", github: ""
+});
+
+const [profilePreview, setProfilePreview]   = useState(currentUser?.avatarIcon || DEFAULT_PROFILE_PIC);
+
+const [coverFile, setCoverFile]  = useState(null);
+const [coverPreview, setCoverPreview] = useState(
+  currentUser?.coverUrl || ""
+);
+
+
   // Non-editable info
   const email = currentUser?.email || "";
   const phone = currentUser?.phoneNumber || "";
@@ -34,12 +57,17 @@ export default function Profile() {
   const [allHobbies, setAllHobbies] = useState([]);
   const [message, setMessage] = useState("");
 
+
   // Sync local state with currentUser when it changes
   useEffect(() => {
     setDisplayName(currentUser?.displayName || "");
     setBio(currentUser?.bio || "");
     setLocation(currentUser?.location || "");
-    setEducation(currentUser?.education || "");
+    setEducation(
+   Array.isArray(currentUser?.education)
+     ? currentUser.education
+     : []
+ );
     setHobby(
       currentUser?.hobby
         ? (Array.isArray(currentUser.hobby) ? currentUser.hobby : [currentUser.hobby])
@@ -86,14 +114,17 @@ export default function Profile() {
       await updateUser(
         displayName,
         profilePicFile,
+        coverFile,
         bio,
         location,
-        education,
         hobby,
         relationship,
         dateOfBirth,
         gender,
         occupation,
+        languages,        
+       socialLinks,
+       education,
         currentUser?.avatarBgColor || ""
       );
       setMessage("Profile updated successfully!");
@@ -103,6 +134,70 @@ export default function Profile() {
       setMessage("Failed to update profile.");
     }
   };
+
+  const handleProfileFile = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  setProfilePicFile(file);
+  setProfilePreview(URL.createObjectURL(file));
+};
+const handleCoverFile = e => {
+  const file = e.target.files[0];
+  if (!file) return;
+  setCoverFile(file);
+  setCoverPreview(URL.createObjectURL(file));
+};
+
+const onDrop = useCallback((acceptedFiles) => {
+    if (!acceptedFiles.length) return;
+    const file = acceptedFiles[0];
+    setProfilePicFile(file);
+    setProfilePreview(URL.createObjectURL(file));
+  }, []);
+
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    onDrop,
+    accept: { "image/*": [] },
+    multiple: false
+  });
+
+  useEffect(() => {
+    return () => {
+      if (profilePreview.startsWith("blob:")) URL.revokeObjectURL(profilePreview);
+    };
+  }, [profilePreview]);
+
+
+  const handleLangKeyDown = e => {
+  if (e.key === "," || e.key === "Enter") {
+    e.preventDefault();
+    const val = langDraft.trim().replace(/,$/, "");
+    if (val && !languages.includes(val)) {
+      setLanguages([...languages, val]);
+    }
+    setLangDraft("");
+  }
+};
+
+
+const socialConfig = [
+    { key: "facebook",   Icon: Facebook,   placeholder: "facebook.com/you" },
+  { key: "linkedin", Icon: Linkedin, placeholder: "linkedin.com/you" },
+  { key: "twitter",  Icon: Twitter,  placeholder: "x.com/you" },
+  { key: "github",   Icon: Github,   placeholder: "github.com/you" },
+];
+
+const updateEduField = (idx, field, val) => {
+  const copy = [...education];
+  copy[idx][field] = val;
+  setEducation(copy);
+};
+const addEducation = () => {
+  setEducation([...education, { school:"", degree:"", start:"", end:"" }]);
+};
+const removeEducation = idx => {
+  setEducation(education.filter((_,i)=>i!==idx));
+};
 
   return (
     <motion.div
@@ -117,20 +212,34 @@ export default function Profile() {
 
       <header className={styles.headerSection}>
         <div className={styles.profilePicContainer}>
+<div 
+        className={styles.imageWrapper} 
+        {...(isEditing ? getRootProps() : {})}
+      >
+        {/* always show preview, or default */}
+        <img
+          src={profilePreview}
+          alt="Profile preview"
+          className={styles.profilePic}
+        />
 
-        <div className={styles.imageWrapper}>
-            <img
-              src={currentUser?.avatarIcon || DEFAULT_PROFILE_PIC}
-              alt="Profile"
-              className={`${styles.profilePic} ${isEditing ? styles.editFrame : ""}`}
-            />
-        {isEditing && <Camera className={styles.cameraIcon} />}
-        </div>
+        {isEditing && (
+          <>
+            {/* single file-input for both click & drop */}
+            <input {...getInputProps()} className={styles.fileInput}/>
+            
+            {/* optional drag hint */}
+            {isDragActive ? (
+              <div className={styles.dropHint}>Drop to upload</div>
+            ) : (
+              <Camera className={styles.cameraIcon}/>
+            )}
+          </>
+        )}
+      </div>
+      
+</div>
 
-          {isEditing && (
-            <input type="file" accept="image/*" onChange={handleFileChange} className={styles.fileInput} />
-          )}
-        </div>
         <div className={styles.infoHeader}>
           {isEditing ? (
             <input
@@ -166,9 +275,40 @@ export default function Profile() {
 
           {/* Education */}
           <div className={styles.formGroup}>
-            <label htmlFor="education">Education</label>
-            <input id="education" type="text" value={education} onChange={(e) => setEducation(e.target.value)} className={styles.inputField} />
-          </div>
+  <label>Education</label>
+  {education.map((ed,i) => (
+    <div key={i} className={styles.eduEntry}>
+      <input
+        placeholder="School"
+        value={ed.school}
+        onChange={e=>updateEduField(i,"school",e.target.value)}
+        className={styles.inputField}
+      />
+      <input
+        placeholder="Degree"
+        value={ed.degree}
+        onChange={e=>updateEduField(i,"degree",e.target.value)}
+        className={styles.inputField}
+      />
+      <input
+        type="month"
+        placeholder="Start"
+        value={ed.start}
+        onChange={e=>updateEduField(i,"start",e.target.value)}
+        className={styles.inputField}
+      />
+      <input
+        type="month"
+        placeholder="End or present"
+        value={ed.end}
+        onChange={e=>updateEduField(i,"end",e.target.value)}
+        className={styles.inputField}
+      />
+      <button type="button" onClick={()=>removeEducation(i)}>Remove</button>
+    </div>
+  ))}
+  <button type="button" onClick={addEducation}>+ Add Another</button>
+</div>
 
           {/* Hobbies as chips */}
           <div className={styles.formGroup}>
@@ -208,7 +348,49 @@ export default function Profile() {
               <option value="Prefer not to say">Prefer not to say</option>
             </select>
           </div>
-        
+
+          <div className={styles.formGroup}>
+  <label htmlFor="languages">Languages</label>
+  <div className={styles.tagInput}>
+    {languages.map(l => (
+      <span key={l} className={styles.tag}>
+        {l}
+        <button type="button" 
+        onClick={() => setLanguages(languages.filter(x=>x!==l ) ) }
+        >
+          ×
+        </button>
+      </span>
+    ))}
+    <input
+      id="languages"
+      type="text"
+      value={langDraft}
+      onChange={e => setLangDraft(e.target.value)}
+      onKeyDown={handleLangKeyDown}
+      placeholder="Type a language and hit comma or Enter"
+      className={styles.inputField}
+    />
+  </div>
+</div>
+
+{/* Social Links */}
+<div className={styles.formGroup}>
+  <label>Social</label>
+  {socialConfig.map(({key,Icon,placeholder}) => (
+    <div key={key} className={styles.iconInput}>
+      <Icon size={18} className={styles.socialIcon}/>
+      <input
+        type="url"
+        value={socialLinks[key]||""}
+        onChange={e => setSocialLinks({...socialLinks, [key]:e.target.value})}
+        placeholder={placeholder}
+        className={styles.inputField}
+      />
+    </div>
+  ))}
+</div>
+
 
           <motion.button type="submit" className={styles.updateButton} whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
             Save Changes
@@ -225,15 +407,33 @@ export default function Profile() {
             <span className={styles.detailLabel}>Location:</span>
             <span className={styles.detailValue}>{location || "Not provided"}</span>
           </div>
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Education:</span>
-            <span className={styles.detailValue}>{education || "Not provided"}</span>
-          </div>
+
+           {education.length > 0 ? (
+    education.map((ed, idx) => (
+      <div key={idx} className={styles.detailItem}>
+        <span className={styles.detailLabel}>
+          {ed.degree || "Education"}:
+        </span>
+        <span className={styles.detailValue}>
+          {ed.school}{", "}
+          {ed.start}
+          {" – "}
+          {ed.end || "Present"}
+        </span>
+      </div>
+    ))
+  ) : (
+    <div className={styles.detailItem}>
+      <span className={styles.detailLabel}>Education:</span>
+      <span className={styles.detailValue}>Not provided</span>
+    </div>
+  )}
 
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Date of Birth:</span>
             <span className={styles.detailValue}>{dateOfBirth || "Not provided"}</span>
           </div>
+
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Gender:</span>
             <span className={styles.detailValue}>{gender || "Not provided"}</span>
@@ -252,7 +452,46 @@ export default function Profile() {
             <span className={styles.detailValue}>{relationship || "Not provided"}</span>
           </div>
           
-         
+          <div className={styles.detailItem}>
+    <span className={styles.detailLabel}>Languages:</span>
+    <span className={styles.detailValue}>
+      {languages.length
+        ? languages.map((l) => (
+            <span key={l} className={styles.langChip}>
+              {l}
+            </span>
+          ))
+        : "Not provided"}
+    </span>
+  </div>
+
+
+  <div className={styles.detailItem}>
+    <span className={styles.detailLabel}>Social:</span>
+    <span className={styles.detailValue}>
+      {Object.entries(socialLinks).map(([key, url]) =>
+        url ? (
+          <a
+            key={key}
+            href={url}
+            target="_blank"
+            rel="noreferrer"
+            className={styles.socialButton}
+          >
+            {/* reuse your Lucide Icon components */}
+            {React.createElement(
+              { facebook:Facebook , linkedin: Linkedin, twitter: Twitter, github: Github }[key],
+              { size: 16, className: styles.socialIcon }
+            )}
+            <span className={styles.socialText}>{key}</span>
+          </a>
+        ) : null
+      ).filter(Boolean).length === 0
+        ? "None"
+        : null}
+    </span>
+  </div>
+
         </section>
       )}
 

@@ -1,149 +1,225 @@
 .requestsPanel {
-    position: absolute;
-    right: 10px;
-    top: 65px;
-    background: #fff;
-    padding: 20px;
-    border-radius: 10px;
-    width: 320px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.25);
-    z-index: 1200;
-    max-height: 85vh;
-    overflow-y: auto;
-  }
-  
-  .requestsPanel::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  .requestsPanel::-webkit-scrollbar-track {
-    background: #111;
-    border-radius: 4px;
-  }
-  
-  .requestsPanel::-webkit-scrollbar-thumb {
-    background: linear-gradient(180deg, #00d2ff, #3a7bd5);
-    border-radius: 4px;
-    border: 2px solid #111;
-    box-shadow: inset 0 0 3px rgba(0,0,0,0.5);
-    transition: background 0.3s ease;
-  }
-  
-  .requestsPanel::-webkit-scrollbar-thumb:hover {
-    background: linear-gradient(180deg, #3a7bd5, #00d2ff);
-  }
-  
-  .requestsPanel::-webkit-scrollbar-corner {
-    background: #111;
-  }
-  
-  .requestsPanel {
-    scrollbar-width: thin;
-    scrollbar-color: #00d2ff #111;
-  }
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  width: 400px;
+  max-height: 80vh;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.85));
+  backdrop-filter: blur(20px);
+  border-radius: 24px;
+  padding: 24px;
+  box-shadow: 
+    0 20px 40px rgba(0, 0, 0, 0.15),
+    0 0 0 1px rgba(255, 255, 255, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  z-index: 1000;
+  animation: slideInRight 0.3s ease-out;
+  overflow: hidden;
+  position: relative;
+}
 
+.requestsPanel::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  opacity: 0.05;
+  z-index: 0;
+}
+
+.requestsPanel > * {
+  position: relative;
+  z-index: 1;
+}
+
+.closeIconButton {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
+  border: none;
+  border-radius: 50%;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-size: 16px;
+  z-index: 2;
+}
+
+.closeIconButton:hover {
+  background: rgba(239, 68, 68, 0.2);
+  transform: scale(1.1);
+}
+
+.requestsPanel h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0 0 20px 0;
+  text-align: center;
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.section {
+  margin-bottom: 24px;
+}
+
+.section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #374151;
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.1);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.requestItem, .friendItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 16px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  margin-bottom: 8px;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  color: inherit;
+}
+
+.requestItem:hover, .friendItem:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.requestPic, .friendPic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.requestItem:hover .requestPic, 
+.friendItem:hover .friendPic {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.requestInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.requestName, .friendName {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.acceptButton {
+  background: linear-gradient(135deg, #10b981, #059669);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 6px 12px;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.acceptButton:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+}
+
+.section:last-child {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-right: 8px;
+}
+
+.section:last-child::-webkit-scrollbar {
+  width: 4px;
+}
+
+.section:last-child::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 2px;
+}
+
+.section:last-child::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #667eea, #764ba2);
+  border-radius: 2px;
+}
+
+.section p {
+  color: #6b7280;
+  font-size: 14px;
+  text-align: center;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.4);
+  border-radius: 12px;
+  margin: 0;
+  font-style: italic;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 768px) {
+  .requestsPanel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    bottom: 0;
+    width: 100%;
+    max-height: 100vh;
+    border-radius: 0;
+    animation: slideInRight 0.3s ease-out;
+  }
   
   .requestsPanel h3 {
-    margin-top: 0;
-    color: #3b9ae3;
-    border-bottom: 1px solid #ddd;
-    padding-bottom: 10px;
-    margin-bottom: 15px;
+    font-size: 20px;
+    margin-top: 16px;
   }
   
-  .section {
-    margin-bottom: 20px;
-  }
-  
-  .requestItem, .friendItem {
-    display: flex;
-    align-items: center;
-    padding: 10px 0;
-    border-bottom: 1px solid #f0f0f0;
-  }
-  
-  .requestPic, .friendPic {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
-    margin-right: 15px;
-    object-fit: cover;
-    border: 2px solid #3b9ae3;
-  }
-  
-  .requestInfo {
-    flex: 1;
-  }
-  
-  .requestName {
-    font-weight: bold;
-    color: #333;
-  }
-  
-  .requestTime {
-    font-size: 12px;
-    color: #999;
-  }
-  
-  .acceptButton {
-    background: #3b9ae3;
-    border: none;
-    padding: 7px 12px;
-    border-radius: 5px;
-    color: #fff;
-    cursor: pointer;
-    font-weight: bold;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-  }
-  
-  .acceptButton:hover {
-    background: #2a7bbd;
-    transform: scale(1.05);
-  }
-  
-  .friendItem {
-    text-decoration: none;
-    display: flex;
-    align-items: center;
-    width: 100%;
-    padding: 5px 0;
-    border-bottom: 1px solid #f7f7f7;
-    transition: background 0.3s;
-  }
-  
-  .friendItem:hover {
-    background: #f1f1f1;
-  }
-  
-  .friendName {
-    color: #333;
-    font-weight: 500;
-  }
-  
-  .closePanelButton {
-    background: #ff4757;
-    color: #fff;
-    border: none;
-    padding: 8px 12px;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-top: 10px;
-    width: 100%;
-  }
-
   .closeIconButton {
-    position: absolute;
-    top: 8px;
-    right: 8px;
-    background: transparent;
-    border: none;
-    color: #333;        
-    cursor: pointer;
-    padding: 4px;
-    z-index: 10;
-    transition: transform 0.2s ease;
+    top: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
   }
-  .closeIconButton:hover {
-    transform: scale(1.2);
-  }
-  
+}
