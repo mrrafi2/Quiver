@@ -223,7 +223,6 @@
   transform: translateY(-1px);
 }
 
-/* Logout Confirmation Modal */
 .overlay {
   position: fixed;
   top: 0;
@@ -249,20 +248,20 @@
     backdrop-filter: blur(20px);
   }
 }
-
 .confirmBox {
-  background: rgba(255, 255, 255, 0.1);
-  backdrop-filter: blur(30px);
-  border-radius: 20px;
+  background: #ffffff;             
+  color: #222;                      
+  border-radius: 16px;
   padding: 32px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 2px solid #667eea;        
   text-align: center;
-  box-shadow: 
-    0 20px 40px rgba(0, 0, 0, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-  animation: confirmBoxSlideIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  max-width: 400px;
-  width: 90%;
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.15), 
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+  animation: confirmBoxSlideIn 0.3s ease-out;
+  max-width: 480px;                
+  width: 80%;                       
+  margin: 0 auto;                   
 }
 
 @keyframes confirmBoxSlideIn {
@@ -277,10 +276,10 @@
 }
 
 .confirmBox p {
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(94, 94, 94, 0.9);
   font-size: 1.1rem;
   margin: 0 0 24px 0;
-  font-weight: 500;
+  font-weight: 600;
   line-height: 1.4;
 }
 
@@ -315,7 +314,7 @@
 }
 
 .cancelBtn {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(136, 136, 136, 0.8);
   color: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(255, 255, 255, 0.2);
 }
@@ -326,7 +325,6 @@
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
 
-/* Mobile Responsive */
 @media (max-width: 768px) {
   .navbar {
     padding: 12px 20px;
@@ -355,6 +353,10 @@
   .confirmBox {
     padding: 24px;
     margin: 20px;
+    position: relative;
+    bottom: -110px;
+    left:0px ;
+    max-width: 300px;
   }
   
   .confirmBox p {
@@ -442,7 +444,6 @@
   }
 }
 
-/* Focus States for Keyboard Navigation */
 .iconButton:focus,
 .logoutButton:focus,
 .link:focus,

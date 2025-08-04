@@ -17,7 +17,7 @@
   padding: 32px;
   max-width: 600px;
   width: 90%;
-  max-height: 80vh;
+  max-height: 90vh;
   overflow: hidden;
   box-shadow: 
     0 20px 40px rgba(0, 0, 0, 0.2),
@@ -45,8 +45,8 @@
 
 .closeButton {
   position: absolute;
-  top: 16px;
-  right: 16px;
+  top: 5px;
+  right: 1px;
   background: rgba(239, 68, 68, 0.1);
   color: #ef4444;
   border: none;
@@ -83,7 +83,7 @@
 
 .searchInput:focus {
   outline: none;
-  border-color: #667eea;
+  border-color: #1ec4f7;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
   transform: translateY(-2px);
@@ -164,7 +164,7 @@
 }
 
 .resultLocation {
-  font-size: 14px;
+  font-size: 13px;
   color: #6b7280;
   font-weight: 500;
 }
@@ -183,23 +183,28 @@
 }
 
 .requestButton {
-  background: linear-gradient(135deg, #667eea, #764ba2);
-  color: white;
+   background: linear-gradient(135deg, #ff416c, #ff4b2b);
+  cursor: pointer;
+  transition:
+    background 0.3s ease,
+    box-shadow 0.3s ease,
+    transform 0.2s ease,
+    opacity 0.2s ease;
+  box-shadow: 0 4px 12px rgba(255, 65, 108, 0.3);
+   color:white;
   border: none;
   border-radius: 12px;
   padding: 10px 20px;
   font-size: 14px;
   font-weight: 600;
-  cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
   white-space: nowrap;
 }
 
 .requestButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 6px 16px rgba(102, 126, 234, 0.4);
-  background: linear-gradient(135deg, #5a6fd8, #6b46c1);
+ box-shadow: 0 6px 16px rgba(255, 65, 108, 0.4);
+  background: linear-gradient(135deg, #ff4b2b, #ff8c00);
 }
 
 .requestButton:disabled {
@@ -245,9 +250,10 @@
 
 @media (max-width: 768px) {
   .portalContent {
-    padding: 20px;
-    max-width: 95%;
-    max-height: 90vh;
+    padding: 30px;
+    max-width: 98%;
+    max-height: 95vh;
+    padding-top: 45px;
   }
   
   .searchInput {
@@ -256,8 +262,13 @@
   }
   
   .resultItem {
-    padding: 12px;
+    padding: 10px;
     gap: 12px;
+  }
+  .closeButton {
+  position: absolute;
+  top: 4px;
+  right: 4px;
   }
   
   .resultPic {

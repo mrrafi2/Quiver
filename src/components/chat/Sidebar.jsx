@@ -12,6 +12,7 @@ import { realtimeDB } from '../../services/Firebase';
 import { useAuth } from '../../contexts/AuthContext';
 import { motion } from 'framer-motion';
 import styles from '../../styles/sidebar.module.css';
+import Navbar from '../layout/Navbar';
 
 export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
   const { currentUser } = useAuth();
@@ -147,6 +148,10 @@ export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
   };
 
   return (
+    <>
+    
+    <Navbar/>
+   
     <motion.div
       className={styles.sidebar}
       initial={{ x: -300, opacity: 0 }}
@@ -207,6 +212,7 @@ export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
         )}
       </div>
     </motion.div>
+    </>
   );
 }
 

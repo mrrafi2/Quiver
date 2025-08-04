@@ -1,4 +1,3 @@
-/* ChatWindow.module.css - Modern Chat Interface */
 
 .chatContainer {
   display: flex;
@@ -165,6 +164,195 @@
   pointer-events: all;
 }
 
+.customDropdown {
+  position: relative;
+  min-width: 96px;
+  margin: 0 4px;
+  display: inline-block;
+}
+
+.dropdownButton {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(255,255,255,0.13);
+  border: 1.5px solid rgba(255,255,255,0.20);
+  border-radius: 16px;
+  padding: 7px 14px 7px 12px;
+  color: #fff;
+  font-size: 0.98rem;
+  font-weight: 500;
+  box-shadow: 0 2px 8px rgba(40,40,60,0.07);
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+  outline: none;
+  min-width: 80px;
+  min-height: 36px;
+  user-select: none;
+}
+.dropdownButton:focus, .dropdownButton:hover {
+  border-color: #00ff88;
+  background: rgba(0,255,136,0.07);
+}
+.dropdownIcon {
+  margin-right: 0.2em;
+}
+.dropdownCaret {
+  margin-left: 0.6em;
+  font-size: 0.83em;
+  opacity: 0.7;
+}
+.dropdownPlaceholder {
+  color: #bbb;
+  font-weight: 400;
+  opacity: 0.8;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 110%;
+  left: 0;
+  min-width: 120px;
+  background: rgba(25,28,32,0.97);
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.21);
+  z-index: 300;
+  padding: 6px 0;
+  animation: dropdownFadeIn 0.18s;
+  border: 1.5px solid rgba(0,255,136,0.08);
+}
+@keyframes dropdownFadeIn {
+  from { opacity: 0; transform: translateY(-8px);}
+  to { opacity: 1; transform: translateY(0);}
+}
+.dropdownItem {
+  padding: 8px 18px 8px 16px;
+  color: #fff;
+  cursor: pointer;
+  font-size: 1rem;
+  border-radius: 8px;
+  transition: background 0.13s;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.dropdownItem:hover, .dropdownItem.selected {
+  background: rgba(0,255,136,0.13);
+  color: #00ff88;
+}
+
+/* --- Whisper toggle fits dropdown line --- */
+.whisperToggle {
+  background: rgba(255,255,255,0.12);
+  border: 1.5px solid rgba(255,255,255,0.20);
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  margin: 0 4px;
+  transition: border-color 0.2s, background 0.2s;
+  outline: none;
+}
+.whisperToggle:hover, .whisperToggle:focus {
+  border-color: #00ff88;
+  background: rgba(0,255,136,0.13);
+}
+.whisperToggle.active {
+  background: rgba(255,215,0,0.17);
+  border-color: #ffd700;
+  color: #ffd700;
+  box-shadow: 0 0 16px #ffd70022;
+}
+
+/* --- Mobile TopBar & Panel --- */
+.topBarMobile {
+  display: flex;
+  align-items: center;
+  padding: 7px 8px;
+  background: rgba(255,255,255,0.09);
+  min-height: 46px;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
+  z-index: 100;
+}
+.topNameMobile {
+  flex: 1;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #fff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-left: 2px;
+}
+.typingIndicatorMobile {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin: 0 5px;
+  padding: 3px 6px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  font-size: 0.81em;
+  min-width: 26px;
+}
+
+.mobileControlPanel {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 7px 2px 7px;
+  border-radius: 0 0 16px 16px;
+  background: rgba(10,10,18,0.92);
+  border-bottom: 1.5px solid rgba(0,255,136,0.04);
+  position: sticky;
+  top: 46px;
+  z-index: 99;
+  min-height: 48px;
+  margin-bottom: 3px;
+}
+
+@media (max-width: 768px) {
+  .chatContainer {
+    background-attachment: fixed;
+  }
+  .topBarMobile {
+    padding: 6px 4px;
+    min-height: 42px;
+  }
+  .mobileControlPanel {
+    gap: 3px;
+    padding: 6px 2px 2px 2px;
+    min-height: 38px;
+  }
+  .customDropdown {
+    min-width: 80px;
+    font-size: 0.98em;
+  }
+  .dropdownButton {
+    font-size: 0.98em;
+    min-height: 32px;
+    padding: 6px 8px 6px 8px;
+    border-radius: 12px;
+  }
+  .dropdownMenu {
+    min-width: 100px;
+    font-size: 0.97em;
+  }
+  .whisperToggle {
+    width: 32px;
+    height: 32px;
+    font-size: 1em;
+    margin: 0 0 0 2px;
+  }
+}
+
+
 .moodSelector,
 .themeSelector {
   display: flex;
@@ -310,12 +498,6 @@
   }
 }
 
-/* Performance Optimizations */
-* {
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  perspective: 1000px;
-}
 
 .chatMain,
 .topBar,
@@ -323,7 +505,6 @@
   will-change: transform;
 }
 
-/* Dark Mode Support */
 @media (prefers-color-scheme: dark) {
   .topBar {
     background: rgba(0, 0, 0, 0.3);

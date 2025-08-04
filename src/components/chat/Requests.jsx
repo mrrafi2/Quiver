@@ -80,6 +80,7 @@ const FriendRequestsPanel = ({ onClose }) => {
      </button>
 
       <h3>Notifications</h3>
+      <br /><br />
       <div className={styles.section}>
         <h4>Friend Requests</h4>
         {requests.length === 0 ? (
