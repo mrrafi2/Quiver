@@ -1,8 +1,11 @@
 import { initializeApp } from 'firebase/app';
 import { getAuth, GoogleAuthProvider } from 'firebase/auth';
 import { getDatabase } from 'firebase/database';
+import { getMessaging, isSupported } from 'firebase/messaging';
+
 
 const firebaseConfig = {
+
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
   databaseURL: import.meta.env.VITE_FIREBASE_DATABASE_URL,
@@ -19,3 +22,19 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const googleProvider = new GoogleAuthProvider();
 export const realtimeDB = getDatabase(app);
+
+// export messaging (for client usage)
+// messaging may not be supported in all browsers (e.g. Safari)
+export const messaging = (async () => {
+  try {
+    if (await isSupported()) {
+      return getMessaging(app);
+    }
+    return null;
+  } catch (err) {
+    console.warn('FCM not supported', err);
+    return null;
+  }
+}) ();
+
+export const firebaseConfigClient = firebaseConfig;

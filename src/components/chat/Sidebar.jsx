@@ -1,4 +1,5 @@
-// src/components/ChatSidebar.jsx
+//your friendly neighborhood chat navigator
+
 import React, { useEffect, useState } from 'react';
 import {
   ref,
@@ -14,40 +15,53 @@ import { motion } from 'framer-motion';
 import styles from '../../styles/sidebar.module.css';
 import Navbar from '../layout/Navbar';
 
+
 export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
+
   const { currentUser } = useAuth();
-  const [friends, setFriends] = useState([]);
-  const [friendIds, setFriendIds] = useState([]);      
+  const [friends, setFriends] = useState([]);  // enriched friend objects
+  const [friendIds, setFriendIds] = useState([]);    //just the UIDs  
   const [loading, setLoading] = useState(true);
 
+    // mapping mood emojis to border colors
   const moodColorMap = {
     '😀': '#f1c40f',
     '😟': '#3498db',
-    '🎯': '#e74c3c',
-    '😠' : '#2ecc71',
+    '🎯': '#2ecc71',
+    '😠' : '#e74c3c',
   };
 
-  useEffect(() => {
-    if (!currentUser) return;
-    setLoading(true);
+// fetch friend ids & basic infos
 
-    const friendsRef = ref(realtimeDB, `friends/${currentUser.uid}`);
-    const unsub = onValue(friendsRef, async snapshot => {
-      const data = snapshot.val() || {};
+  useEffect(( ) => {
+    if (!currentUser) return;
+
+    setLoading(true)
+
+    const friendsRef = ref(realtimeDB, `friends/${currentUser.uid}`)
+
+    const unsub = onValue ( friendsRef, async snapshot => {
+
+      const data = snapshot.val() || {}
       const ids = Object.keys(data);
       setFriendIds(ids);                              
 
+    // Todo: batch these in one go if performance becomes an issue
       const list = await Promise.all(
+
         ids.map(async uid => {
-          const userSnap = await get(ref(realtimeDB, `users/${uid}`));
-          if (!userSnap.exists()) return null;
+
+          const userSnap = await get(ref(realtimeDB, `users/${uid}`) )
+
+          if (!userSnap.exists()) return null
+
           return {
             uid,
             ...userSnap.val(),
             lastMsg: null,
             lastTs: 0,
             unread: false
-          };
+          }
         })
       );
 
@@ -55,37 +69,39 @@ export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
       setLoading(false);
     });
 
-    return () => unsub();
+    return () => unsub();  // cleanup listener to prevent zombie listeners
   }, [currentUser]);
 
   useEffect(() => {
     if (!currentUser || friendIds.length === 0) return;
   
     // for each friend ID, set up listeners
-    const unsubs = friendIds.map(uid => {
+    const unsubs = friendIds.map (uid => {
       const convId = [currentUser.uid, uid].sort().join('_');
   
-      // 1️⃣ Last‐message listener
+      //  last‐message listener
       const msgQ = query(
         ref(realtimeDB, `conversations/${convId}/messages`),
         orderByChild('timestamp'),
         limitToLast(1)
       );
+
       const unsubMsg = onValue(msgQ, snap => {
         const msgs = snap.val();
         if (msgs) {
           const msg = Object.values(msgs)[0];
+
           setFriends(prev =>
             prev.map(f =>
               f.uid === uid
                 ? { ...f, lastMsg: msg, lastTs: msg.timestamp }
                 : f
             )
-          );
+          )
         }
-      });
+      })
   
-      // 2️⃣ Seen‐timestamp listener
+      //  mark unread if lastTs > seenTs
       const seenRef = ref(
         realtimeDB,
         `conversations/${convId}/seen/${currentUser.uid}`
@@ -123,29 +139,35 @@ export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
         unsubSeen();
         unsubMood();
       };
-    });
+    }
+  );
   
     // cleanup all friend listeners on unmount or deps change
-    return () => unsubs.forEach(fn => fn());
+ return () => unsubs.forEach(fn => fn());
   }, [currentUser, friendIds]);
 
 
-    // Sort friends by latest timestamp
-  const sorted = React.useMemo(
+    // sort friends by latest timestamp
+  const sorted = React.useMemo (
     () => [...friends].sort((a, b) => b.lastTs - a.lastTs),
+
     [friends]
   );
 
   const summary = msg => {
-    if (!msg) return 'No messages yet';
+
+    if (!msg) return 'No messages yet'
+
+      // create a one-liner summary for the last message
     switch (msg.type) {
       case 'text':   return 'Sent a text';
       case 'image':  return 'Sent an image';
       case 'voice':  return 'Sent a voice msg';
       case 'canvas': return 'Sent a sketch';
-      default:       return 'Sent something';
+      default: return 'Sent something';
     }
   };
+
 
   return (
     <>
@@ -162,13 +184,16 @@ export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
 
       <div className={styles.chatList}>
         {loading ? (
-          <ParticleLoader />
+          <ParticleLoader />  // cool swirling/floating bubbles while loading
+
         ) : sorted.length === 0 ? (
           <div className={styles.noFriends}>
-            You have no friends yet.
+            You have no friends yet. Press the Add button at Nav to make some
           </div>
+
         ) : (
           sorted.map(friend => (
+
             <motion.div
               key={friend.uid}
               className={`${styles.chatItem} ${
@@ -178,6 +203,7 @@ export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
               whileHover={{ scale: 1.03 }}
               transition={{ type: 'spring', stiffness: 300 }}
             >
+
               <div className={styles.avatarWrapper}>
                 <div
                   className={styles.chatAvatar}
@@ -195,17 +221,27 @@ export default function ChatSidebar({ onSelectFriend, selectedFriend }) {
                     alt={friend.displayName}
                   />
                 </div>
+
                 {friend.moodEmoji && (
-                  <span className={styles.moodBadge}>{friend.moodEmoji}</span>
+                  <span className={styles.moodBadge}>
+                    {friend.moodEmoji}
+                    </span>
+
                 )}
+
                 {friend.unread && <span className={styles.unreadBadge} />}
               </div>
 
               <div className={styles.chatDetails}>
-                <p className={styles.chatName}>{friend.displayName}</p>
+
+                <p className={styles.chatName}>
+                  {friend.displayName}
+                  </p>
+
                 <span className={styles.chatStatus}>
                   {summary(friend.lastMsg)}
                 </span>
+
               </div>
             </motion.div>
           ))
@@ -220,9 +256,11 @@ function ParticleLoader() {
   const count = 40;
   return (
     <div className={styles.particleContainer}>
+
       {Array.from({ length: count }).map((_, i) => {
-        const sx = Math.random() * 100 + '%';
-        const sy = Math.random() * 100 + '%';
+        const sx = Math.random() * 100 + '%'
+        const sy = Math.random() * 100 + '%'
+
         return (
           <span
             key={i}
@@ -234,7 +272,8 @@ function ParticleLoader() {
             }}
           />
         );
-      })}
+      }
+      )}
     </div>
   );
 }

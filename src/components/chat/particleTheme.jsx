@@ -1,4 +1,3 @@
-// src/components/particleThemes.jsx
 import React, { useCallback } from 'react';
 import Particles from 'react-tsparticles';
 import { loadSlim } from 'tsparticles-slim';
@@ -272,7 +271,7 @@ export default function ParticleThemes({ theme }) {
       style={{
         position: 'absolute',
         inset: 0,
-        zIndex: -1,
+        zIndex: 1,
         pointerEvents: 'none',
       }}
     />

@@ -82,10 +82,10 @@
   flex: 1;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
   padding: 12px 16px;
   color: rgba(255, 255, 255, 0.95);
   font-size: 0.95rem;
+  border-radius: 6px;
   resize: none;
   outline: none;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
@@ -234,6 +234,21 @@
   transform: translateY(-1px);
 }
 
+.floatingBar.focusMode .iconBtn,
+.floatingBar.focusMode .mediaSheet {
+  display: none;
+}
+
+.floatingBar.focusMode .inputBox {
+  flex: 1 1 auto;
+  margin: 0;           
+  max-height: 200px; 
+}
+
+.floatingBar.focusMode .sendBtn {
+  margin-left: 8px;
+}
+
 /* Mobile Optimizations */
 @media (max-width: 768px) {
   .floatingBar {
@@ -257,7 +272,7 @@
   .inputBox {
     padding: 10px 14px;
     font-size: 0.9rem;
-    border-radius: 18px;
+    border-radius: 6px;
     min-height: 40px;
   }
   

@@ -1,109 +1,241 @@
+:root {
+  --glass-size: 170px;
+  --accent-a: 102, 252, 241;
+  --accent-b: 69, 162, 158;
+}
+
+/* fullscreen dim + blur */
 .overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(20, 20, 40, 0.85);
-    backdrop-filter: blur(8px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-  }
-  
-  /* Wrapper to center loader and progress */
-  .loaderWrapper {
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  /* The “glass” you’re filling */
-  .glassContainer {
-    position: relative;
-    width: 150px;
-    height: 150px;
-    background: rgba(255,255,255,0.1);
-    border: 2px solid rgba(0,255,255,0.5);
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.7);
-  }
-  
-  /* The liquid itself */
-  .liquid {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: var(--fill);
-    background: linear-gradient(180deg, rgba(102,252,241,0.9), rgba(69,162,158,0.9));
-    transition: height 0.3s ease-out;
-    /* Auto-fill when no real progress */
-    animation: autoFill 3s ease-in-out infinite alternate;
-  }
-  
-  /* Stop auto-fill when determinate (overridden inline) */
-  .liquid[style*="animation: none"] {
-    animation: none !important;
-  }
-  
-  /* SVG wave sits at top of liquid */
-  .wave {
-    position: absolute;
-    bottom: calc(var(--fill) - 10px);
-    left: 0;
-    width: 100%;
-    height: 20px;
-    pointer-events: none;
-    transition: bottom 0.3s ease-out;
-  }
-  
-  /* Centered progress ring below glass */
-  .progressCircle {
-    position: absolute;
-    top: calc(100% + 12px);
-    left: 50%;
-    transform: translateX(-50%);
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  
-  .progressCircle svg {
-    transform: rotate(-90deg);
-    width: 100%;
-    height: 100%;
-  }
-  
-  .circleBg {
-    fill: none;
-    stroke: rgba(255,255,255,0.2);
-    stroke-width: 2.8;
-  }
-  
-  .circleFill {
-    fill: none;
-    stroke: #66fcf1;
-    stroke-width: 2.8;
-    stroke-linecap: round;
-    transition: stroke-dasharray 0.3s ease-out;
-  }
-  
-  .progressText {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    font-size: 0.8rem;
-    color: #fff;
-    font-weight: bold;
-  }
-  
-  @keyframes autoFill {
-    0%   { height:   0%; }
-    50%  { height:  60%; }
-    100% { height: 100%; }
-  }
-  
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 14, 22, 0.75);
+  backdrop-filter: blur(8px) saturate(1.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* center area */
+.loaderWrapper {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  pointer-events: none; /* non-blocking UI interactions */
+}
+
+/* glass container */
+.glassContainer {
+  position: relative;
+  width: var(--glass-size);
+  height: var(--glass-size);
+  border-radius: 18px;
+  overflow: hidden;
+  background: linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02));
+  border: 1px solid rgba(255,255,255,0.04);
+  box-shadow:
+    0 10px 30px rgba(1, 6, 12, 0.6),
+    inset 0 1px 0 rgba(255,255,255,0.02);
+  display: flex;
+  align-items: flex-end; /* liquid grows from bottom */
+}
+
+/* LIQUID - uses CSS var --fill (percentage) */
+.liquid {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  height: var(--fill); /* drive height via inline style */
+  transition: height 420ms cubic-bezier(.2,.9,.2,1);
+  background:
+    radial-gradient(120px 60px at 20% 10%, rgba(var(--accent-a),0.12), transparent 20%),
+    radial-gradient(80px 40px at 80% 25%, rgba(var(--accent-b),0.08), transparent 30%),
+    linear-gradient(180deg, rgba(var(--accent-a),0.95), rgba(var(--accent-b),0.92));
+  mix-blend-mode: screen;
+  box-shadow: inset 0 6px 18px rgba(0,0,0,0.35), 0 8px 30px rgba(0,0,0,0.45);
+  transform-origin: center bottom;
+  will-change: height, transform;
+  overflow: visible;
+  pointer-events: none;
+}
+
+/* surface sheen - soft top edge and sheen band */
+.surface {
+  position: absolute;
+  top: -8px;
+  left: -20%;
+  width: 140%;
+  height: 36px;
+  background: linear-gradient(90deg, rgba(255,255,255,0.22), rgba(255,255,255,0.07) 40%, rgba(255,255,255,0.02));
+  transform: rotate(-2deg);
+  filter: blur(6px);
+  opacity: 0.9;
+  transition: opacity 300ms;
+  pointer-events: none;
+  mix-blend-mode: overlay;
+}
+
+/* blobs inside the liquid create organic movement */
+.blobGroup {
+  position: absolute;
+  inset: 6% 6% 8%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.blobGroup .blob {
+  position: absolute;
+  display: block;
+  width: 34px;
+  height: 34px;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.25), rgba(var(--accent-a),0.9));
+  border-radius: 50%;
+  filter: blur(6px);
+  opacity: 0.95;
+  transform: translateY(8px);
+  animation: blobFloat 3.8s ease-in-out infinite;
+}
+
+/* staggered blob positions + delays */
+.blobGroup .blob:nth-child(1) {
+  left: 10%;
+  bottom: 10%;
+  width: 40px;
+  height: 40px;
+  animation-delay: 0s;
+}
+.blobGroup .blob:nth-child(2) {
+  left: 40%;
+  bottom: 28%;
+  width: 28px;
+  height: 28px;
+  animation-delay: 0.45s;
+}
+.blobGroup .blob:nth-child(3) {
+  left: 70%;
+  bottom: 14%;
+  width: 32px;
+  height: 32px;
+  animation-delay: 0.9s;
+}
+
+@keyframes blobFloat {
+  0%   { transform: translateY(6px) scale(0.98) rotate(0deg); opacity: 0.9; filter: blur(6px); }
+  40%  { transform: translateY(-8px) scale(1.06) rotate(-3deg); opacity: 1; filter: blur(2px); }
+  100% { transform: translateY(6px) scale(0.98) rotate(0deg); opacity: 0.95; filter: blur(6px); }
+}
+
+/* tiny bubbles drifting upward inside the liquid */
+.bubbles {
+  position: absolute;
+  left: 12%;
+  bottom: 10%;
+  width: 76%;
+  height: 70%;
+  pointer-events: none;
+  overflow: visible;
+}
+
+.bubbles span {
+  position: absolute;
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.9);
+  opacity: 0.12;
+  filter: blur(1.5px);
+  animation: bubbleRise 3.6s linear infinite;
+}
+
+/* stagger bubble positions and delays */
+.bubbles span:nth-child(1) { left: 22%; bottom: 8%; animation-delay: 0s; transform: scale(1.1); }
+.bubbles span:nth-child(2) { left: 50%; bottom: 18%; animation-delay: 0.6s; transform: scale(0.9); }
+.bubbles span:nth-child(3) { left: 72%; bottom: 6%; animation-delay: 1.2s; transform: scale(0.8); }
+
+@keyframes bubbleRise {
+  0%   { transform: translateY(0) scale(1); opacity: 0.14; }
+  60%  { transform: translateY(-40px) scale(1.25); opacity: 0.5; }
+  100% { transform: translateY(-80px) scale(1); opacity: 0; }
+}
+
+/* subtle glass glare layer */
+.glare {
+  position: absolute;
+  pointer-events: none;
+  inset: 6px;
+  border-radius: 12px;
+  box-shadow: inset 0 2px 10px rgba(255,255,255,0.02);
+  background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+  mix-blend-mode: overlay;
+}
+
+/* Disable indeterminate auto-motion when progress is provided */
+.liquid[style*="--indeterminate: 0"] .blob,
+.liquid[style*="--indeterminate: 0"] .bubbles span {
+  animation-play-state: paused;
+  opacity: 1;
+}
+
+/* small, centered progress ring */
+.progressCircle {
+  position: absolute;
+  top: calc(100% + 12px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 64px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+  user-select: none;
+}
+
+.progressSvg {
+  width: 64px;
+  height: 64px;
+  transform: rotate(-90deg);
+}
+
+.circleBg {
+  fill: none;
+  stroke: rgba(255,255,255,0.08);
+  stroke-width: 2.8;
+}
+
+.circleFill {
+  fill: none;
+  stroke: rgba(var(--accent-a),1);
+  stroke-width: 2.8;
+  stroke-linecap: round;
+  transition: stroke-dasharray 300ms cubic-bezier(.2,.9,.2,1);
+}
+
+.progressText {
+  position: absolute;
+  font-size: 0.85rem;
+  color: #eafaf9;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+}
+
+/* indeterminate breathing animation on the whole container */
+@keyframes idlePulse {
+  0% { transform: translateY(0) scale(1); filter: blur(0); }
+  50% { transform: translateY(-4px) scale(1.01); filter: blur(0.2px); }
+  100% { transform: translateY(0) scale(1); filter: blur(0); }
+}
+
+.loaderWrapper {
+  animation: idlePulse 4s ease-in-out infinite;
+}
+
+@media (max-width: 420px) {
+  :root { --glass-size: 140px; }
+  .progressCircle { width: 56px; height: 56px; }
+}

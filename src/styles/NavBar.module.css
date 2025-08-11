@@ -3,58 +3,136 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 32px;
-  background: rgba(255, 255, 255, 0.05);
-  backdrop-filter: blur(30px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+   background: rgba(8, 24, 18, 0.82);   
+  backdrop-filter: blur(10px);            
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  box-shadow: 0 6px 18px rgba(3, 12, 7, 0.45);
   position: sticky;
   top: 0;
-  z-index: 1000;
-  height: 72px;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+  z-index: 3000;
+  height: 74px;
+  overflow: hidden;
 }
+
+.navbar::before,
+.navbar::after {
+  content: '';
+  position: absolute;
+  left: -20%;
+  width: 140%;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #00ff88 40%, #19ff55 60%, transparent);
+  filter: blur(1px);
+  opacity: 0.7;
+  pointer-events: none;
+  z-index: 2;
+  animation: navbar-glow 2.4s linear infinite;
+}
+.navbar::before { top: 0; }
+.navbar::after {
+  bottom: 0;
+  animation-delay: 1.2s;
+}
+
+@keyframes navbar-glow {
+  0%,100% { transform: translateX(0) scaleX(1); opacity: 0.4; }
+  50%     { transform: translateX(34%) scaleX(1.22); opacity: 1; }
+}
+
+.navbar-glow-circuit {
+  position: absolute;
+  pointer-events: none;
+  width: 100%; height: 100%;
+  top: 0; left: 0;
+  z-index: 1;
+  background: repeating-linear-gradient(
+    120deg,
+    transparent,
+    transparent 22px,
+    #00ff8840 24px,
+    transparent 26px,
+    transparent 42px,
+    #19ff5522 44px,
+    transparent 48px
+  );
+  animation: circuit-move 6s linear infinite;
+  opacity: 0.23;
+}
+@keyframes circuit-move {
+  0% { background-position: 0 0; }
+  100% { background-position: 120px 60px; }
+}
+
 
 .logo {
   display: flex;
   align-items: center;
+  gap: 7px;
+  position: relative;
+  z-index: 3;
 }
 
 .logoLink {
-  font-size: 1.8rem;
-  font-weight: 800;
-  background: linear-gradient(135deg, #00ff88 0%, #00d4ff 100%);
+  font-size: 2.1rem;
+  font-weight: 900;
+  font-family: 'Orbitron', 'Audiowide', 'Segoe UI', Arial, sans-serif;
+  letter-spacing: 0.17em;
+  text-decoration: none;
+  background: linear-gradient(100deg, #00ff88 25%, #7bffb7 55%, #00d4ff 90%);
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  text-decoration: none;
-  letter-spacing: 0.1em;
   position: relative;
-  transition: all 0.3s ease;
+  text-shadow:
+    0 0 6px #00ff88aa,
+    0 0 14px #00d4ff66;
+  filter: drop-shadow(0 0 6px #00ff8866);
+  animation: logoGlow 6s ease-in-out infinite alternate;
+  transition: text-shadow 0.32s, filter 0.32s;
+}
+
+@keyframes logoGlow {
+  0%   { text-shadow: 0 0 10px #00ff8899, 0 0 20px #00d4ff55; filter: drop-shadow(0 0 4px #00ff8855);}
+  90%  { text-shadow: 0 0 24px #bfffcc, 0 0 40px #00d4ffcc; filter: drop-shadow(0 0 10px #00ff8888);}
+  100% { text-shadow: 0 0 14px #00ff88cc, 0 0 28px #00d4ffcc; filter: drop-shadow(0 0 18px #00ff88cc);}
 }
 
 .logoLink::after {
   content: '';
   position: absolute;
-  bottom: -4px;
+  bottom: -7px;
   left: 0;
   width: 0;
-  height: 2px;
+  height: 3px;
   background: linear-gradient(90deg, #00ff88 0%, #00d4ff 100%);
-  transition: width 0.3s ease;
+  border-radius: 3px;
+  box-shadow: 0 0 8px #00ff88aa;
+  transition: width 0.4s cubic-bezier(.4,0,.2,1);
 }
 
 .logoLink:hover::after {
   width: 100%;
 }
 
+.logoLink:hover {
+  filter: brightness(1.2) drop-shadow(0 0 16px #00ff88cc);
+  text-shadow: 0 0 24px #7bffb7, 0 0 36px #00d4ff;
+}
+
 .navLinks {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 22px;
+  position: relative;
+  z-index: 2;
 }
 
 .iconButton {
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(0,255,136,0.28);
+  box-shadow: 0 6px 14px rgba(0, 255, 136, 0.06);
+  color: rgba(0,255,136,0.9);
+  background: linear-gradient(125deg, rgba(16,38,22,0.85) 0%, rgba(17,201,123,0.06) 100%);
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1), box-shadow 0.22s, background 0.22s;
   border-radius: 50%;
   width: 48px;
   height: 48px;
@@ -62,11 +140,10 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-  color: rgba(255, 255, 255, 0.8);
+  font-size: 1.3rem;
   position: relative;
   overflow: hidden;
+  
 }
 
 .iconButton::before {
@@ -76,91 +153,96 @@
   left: 50%;
   width: 0;
   height: 0;
-  background: radial-gradient(circle, rgba(0, 255, 136, 0.2) 0%, transparent 70%);
-  transition: all 0.3s ease;
+    background: radial-gradient(circle, rgba(0,255,136,0.12) 0%, transparent 70%);
+  transition: all 0.36s cubic-bezier(.4,0,.2,1);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  z-index: 0;
 }
 
 .iconButton:hover::before {
-  width: 80px;
-  height: 80px;
+  width: 68px;
+  height: 68px;
+  opacity: .72;
 }
 
 .iconButton:hover {
-  background: rgba(255, 255, 255, 0.15);
-  border-color: rgba(0, 255, 136, 0.3);
-  transform: translateY(-2px);
-  box-shadow: 
-    0 8px 25px rgba(0, 0, 0, 0.15),
-    0 0 0 1px rgba(255, 255, 255, 0.1);
+  background: linear-gradient(115deg, #00ff88 0%, #11c97b 100%);
+  border-color: #aaffcc;
+  color: #fff;
+ transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(0,255,136,0.12), 0 0 18px rgba(0,255,136,0.08);
 }
 
 .badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
-  background: linear-gradient(135deg, #ff4757, #ff3838);
-  color: white;
+  top: 2px;
+  right: 3px;
+  background: linear-gradient(135deg, #ff4757, #ff3838 60%);
+  color: #fff;
   border-radius: 50%;
-  width: 20px;
-  height: 20px;
+  width: 16px;
+  height: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 0.7rem;
-  font-weight: 600;
-  border: 2px solid rgba(255, 255, 255, 0.9);
-  animation: badgePulse 2s infinite;
-  box-shadow: 0 0 8px rgba(255, 71, 87, 0.6);
+  font-weight: 700;
+  border: 2.2px solid #fff;
+  animation: badgePulse 1.7s infinite;
+  box-shadow: 0 0 10px #ff475766;
+  
 }
 
 @keyframes badgePulse {
   0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.1); }
+  50% { transform: scale(1.14); }
 }
 
 .profileLink {
-  margin-left: 8px;
-  transition: transform 0.2s ease;
+  margin-left: 10px;
+  transition: transform 0.18s cubic-bezier(.4,0,.2,1);
 }
 
 .profileLink:hover {
-  transform: scale(1.05);
+  transform: scale(1.07);
 }
 
 .profilePic {
-  width: 40px;
-  height: 40px;
+  width: 42px;
+  height: 42px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.2);
+  border: 2.3px solid #00ff8833;
   object-fit: cover;
-  transition: all 0.2s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: border-color 0.19s, box-shadow 0.21s;
+  box-shadow: 0 4px 14px #00ff8822;
 }
 
 .profilePic:hover {
-  border-color: rgba(0, 255, 136, 0.5);
+  border-color: #00ff88cc;
   box-shadow: 
-    0 4px 12px rgba(0, 0, 0, 0.15),
-    0 0 0 2px rgba(0, 255, 136, 0.2);
+    0 4px 16px #00ff8844,
+    0 0 0 3px #00ff8840;
 }
 
 .logoutButton {
-  background: rgba(255, 71, 87, 0.1);
-  border: 1px solid rgba(255, 71, 87, 0.3);
+  background: linear-gradient(135deg, #ff4757 0%, #1e1e1e 100%);
+  border: 1.6px solid #ff4757;
   border-radius: 50%;
-  width: 48px;
-  height: 48px;
+  width: 45px;
+  height: 45px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-  backdrop-filter: blur(10px);
-  color: rgba(255, 255, 255, 0.8);
+  color: #fff;
+  font-size: 1.24rem;
+  box-shadow: 0 0 14px #ff475755;
   position: relative;
   overflow: hidden;
+  transition: 
+    background 0.25s cubic-bezier(.4,0,.2,1),
+    box-shadow 0.21s, border-color 0.21s;
 }
 
 .logoutButton::before {
@@ -170,16 +252,28 @@
   left: 50%;
   width: 0;
   height: 0;
-  background: radial-gradient(circle, rgba(255, 71, 87, 0.3) 0%, transparent 70%);
-  transition: all 0.3s ease;
+  background: radial-gradient(circle, rgba(255, 71, 87, 0.27) 0%, transparent 80%);
+  transition: all 0.33s cubic-bezier(.4,0,.2,1);
   border-radius: 50%;
   transform: translate(-50%, -50%);
+  z-index: 0;
 }
 
 .logoutButton:hover::before {
-  width: 80px;
-  height: 80px;
+  width: 72px;
+  height: 72px;
+  opacity: .6;
 }
+
+.logoutButton:hover {
+  background: linear-gradient(120deg, #ff4757 0%, #ff3838 100%);
+  border-color: #fff;
+  box-shadow:
+    0 0 20px #ff475799,
+    0 0 36px #ff383877;
+}
+
+
 
 .logoutButton:hover {
   background: rgba(255, 71, 87, 0.2);
@@ -234,7 +328,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 2000;
+  z-index: 9999;
   animation: overlayFadeIn 0.3s ease;
 }
 
@@ -261,7 +355,8 @@
   animation: confirmBoxSlideIn 0.3s ease-out;
   max-width: 480px;                
   width: 80%;                       
-  margin: 0 auto;                   
+  margin: 0 auto;       
+              
 }
 
 @keyframes confirmBoxSlideIn {
@@ -328,7 +423,7 @@
 @media (max-width: 768px) {
   .navbar {
     padding: 12px 20px;
-    height: 64px;
+    height: 70px;
   }
   
   .logoLink {
@@ -354,7 +449,7 @@
     padding: 24px;
     margin: 20px;
     position: relative;
-    bottom: -110px;
+    
     left:0px ;
     max-width: 300px;
   }
@@ -382,7 +477,9 @@
   }
   
   .logoLink {
-    font-size: 1.3rem;
+    font-size: 1.5rem;
+    position: relative;
+    left: -25px;
   }
   
   .navLinks {
@@ -391,13 +488,13 @@
   
   .iconButton,
   .logoutButton {
-    width: 40px;
-    height: 40px;
+    width: 42px;
+    height: 42px;
   }
   
   .profilePic {
-    width: 32px;
-    height: 32px;
+    width: 35px;
+    height: 35px;
   }
 }
 
@@ -412,7 +509,6 @@
   }
 }
 
-/* Performance Optimizations */
 .navbar,
 .iconButton,
 .logoutButton,

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect,  } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ref, onValue } from "firebase/database";
 import { realtimeDB } from "../../services/Firebase";
@@ -8,54 +8,107 @@ import { FaUserPlus, FaUserFriends } from 'react-icons/fa';
 import { FiLogOut } from 'react-icons/fi';
 import FriendSearchPortal from '../chat/FriendSearch';
 import FriendRequestsPanel from '../chat/Requests';
+import { createPortal } from 'react-dom';
 import styles from '../../styles/NavBar.module.css';
 
+// todo: Move this portal into its own file if it grows any larger.
+// who knew logging out required its own mini-software?
+
+function LogoutConfirmPortal ({ onConfirm, onCancel }) {
+  
+  return createPortal (
+
+    <div className={styles.overlay}>
+
+      <div className={styles.confirmBox}>
+        <p>
+           Are you sure you want to log out?
+          </p>
+
+        <div className={styles.confirmButtons}>
+          <button className={styles.yesBtn} onClick={onConfirm}>
+            Yes
+            </button>
+
+          <button className={styles.cancelBtn} onClick={onCancel}>
+            Cancel
+            </button>
+
+        </div>
+
+      </div>
+
+    </div>,
+
+    document.getElementById('portal-root')
+  );
+}
+
+
 const Navbar = () => {
+
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
   const [showSearch, setShowSearch] = useState(false);
   const [showRequests, setShowRequests] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
   const [showLogoutConfirm, setShowLogoutConfirm] = useState(false);
+ 
+  
+    // Todo: Debounce this if you get throttled by Firebase.
+      // Tip: real-time badge update for incoming friend requests.
+  useEffect(( ) => {
 
-
-  useEffect(() => {
     if (currentUser) {
-        const reqRef = ref(realtimeDB, `friendRequests/${currentUser.uid}`);
+
+        const reqRef = ref (realtimeDB, `friendRequests/${currentUser.uid}`)
+
         const unsubscribe = onValue(reqRef, snapshot => {
-        const data = snapshot.val();
+        const data = snapshot.val()
+
         if (data) {
-          setPendingCount(Object.keys(data).length);
+          setPendingCount(Object.keys(data).length)
         } else {
-          setPendingCount(0);
+          setPendingCount(0)
         }
       });
-      return () => unsubscribe();
+      return () => unsubscribe();  // clean up listener on unmount
     }
-  }, [currentUser]);
+  }, [currentUser] );
 
-  async function handleLogout() {
+
+    // Handle actual logout flow
+  async function handleLogout ( ) {
     try {
       await logout();
       navigate("/login");
     } catch (error) {
       console.error("Logout failed:", error);
     } finally {
-      setShowLogoutConfirm(false); // Close the overlay even if logout fails
+      setShowLogoutConfirm(false);   // close the overlay even if logout fails
     }
   }
 
-  const toggleSearch = () => setShowSearch(prev => !prev);
+    // handy toggles for portals
+   const toggleSearch = () => setShowSearch (prev => !prev);
   const toggleRequests = () => setShowRequests(prev => !prev);
 
   return (
+
     <>
       <nav className={styles.navbar}>
+            <div class="navbar-glow-circuit"></div>
+
         <div className={styles.logo}>
-          <Link to="/" className={styles.logoLink}>QUIVER</Link>
+          <Link to="/" className={styles.logoLink}>
+          QUIVER
+          </Link>
+
         </div>
+
         <div className={styles.navLinks}>
-          {currentUser ? (
+
+          { currentUser ? (
             <>
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -75,9 +128,14 @@ const Navbar = () => {
                 title="Friend Requests"
               >
                 <FaUserFriends size={20} />
-                {pendingCount > 0 && (
-                  <span className={styles.badge}>{pendingCount}</span>
-                )}
+
+                { pendingCount > 0 && (
+                  <span className={styles.badge}>
+                    {pendingCount}
+                    </span>
+                )
+                }
+
               </motion.button>
 
               <Link to="/profile" className={styles.profileLink}>
@@ -99,17 +157,13 @@ const Navbar = () => {
   
          </motion.button>   
 
-         {showLogoutConfirm && (
-  <div className={styles.overlay}>
-    <div className={styles.confirmBox}>
-      <p>Are you sure you want to log out?</p>
-      <div className={styles.confirmButtons}>
-        <button className={styles.yesBtn} onClick={handleLogout}>Yes</button>
-        <button className={styles.cancelBtn} onClick={() => setShowLogoutConfirm(false)}>Cancel</button>
-      </div>
-    </div>
-  </div>
-)}        
+       { showLogoutConfirm && (
+        <LogoutConfirmPortal
+          onConfirm={handleLogout}
+          onCancel={() => setShowLogoutConfirm(false)}
+        />
+      )}
+
 </>
           ) : (
             <>

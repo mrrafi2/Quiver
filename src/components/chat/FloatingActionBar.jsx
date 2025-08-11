@@ -7,13 +7,20 @@ import styles from '../../styles/actionBar.module.css';
 import ImageUploadLoader from './ImgLoader';
 
 export default function FloatingActionBar({ onSend, onType }) {
+
   const [input, setInput] = useState('');
   const [isFocused, setIsFocused] = useState(false);
+
+  //  doodle mode toggles
   const [showCanvas, setShowCanvas] = useState(false);
   const [showVoice, setShowVoice] = useState(false);
   const [sending, setSending] = useState(false);
+
+  //  image uploading state
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(null);
+  
+  // show/hide bottom-sheet for media
   const [showMediaOptions, setShowMediaOptions] = useState(false);
 
   const galleryInputRef = useRef();
@@ -21,86 +28,116 @@ export default function FloatingActionBar({ onSend, onType }) {
   const inputRef = useRef(null);
 
   // handle text input & auto-resize
+    // Todo: consider debouncing onType calls so we don't flood the network with every keystroke
   const handleInputChange = v => {
-    setInput(v);
-    onType?.(!!v.trim());
-    if (inputRef.current) {
-      inputRef.current.style.height = 'auto';
-      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
+    setInput(v)
+    onType?.( !!v.trim( ) );
+
+    if ( inputRef.current ) {
+
+      inputRef.current.style.height = 'auto'
+      inputRef.current.style.height = `${inputRef.current.scrollHeight}px`
     }
   };
 
-  const handleFocus = () => {
-    setIsFocused(true);
-    if (inputRef.current) inputRef.current.style.height = `${inputRef.current.scrollHeight}px`;
-  };
-  const handleBlur = () => {
-    setIsFocused(false);
-    if (inputRef.current) inputRef.current.style.height = '';
+
+  const handleFocus = ( ) => {
+    setIsFocused(true)
+    if ( inputRef.current) inputRef.current.style.height = `${inputRef.current.scrollHeight}px`
   };
 
+  const handleBlur = ( ) => {
+    setIsFocused(false)
+    if ( inputRef.current) inputRef.current.style.height = ''
+  };
+
+
   // send text message
-  const sendText = async () => {
-    const trimmed = input.trim();
-    if (!trimmed || sending) return;
-    setSending(true);
+  const sendText = async ( ) => {
+    const trimmed = input.trim( )
+
+    if (!trimmed || sending)
+  // Tip: maybe show a playful tooltip here: “You have nothing to say!” 
+       return
+    setSending(true)
+
     try {
-      await onSend?.({ type: 'text', text: trimmed });
-      setInput('');
-      onType?.(false);
-      if (inputRef.current) inputRef.current.style.height = '';
+      await onSend?.( { type: 'text', text: trimmed } )
+      setInput('')
+       onType?.(false)
+
+      if ( inputRef.current ) inputRef.current.style.height = ''
     } catch (err) {
-      console.error('Failed to send text message:', err);
+      console.error('Failed to send text message:', err)
     }
     setSending(false);
   };
 
   // open gallery or camera
-  const openGallery = () => galleryInputRef.current?.click();
+  const openGallery = ( ) => galleryInputRef.current?.click ();
   const openCamera = () => cameraInputRef.current?.click();
 
-  // handle selected image
+
+    // handle selected image, upload & send
   const onImageSelected = async e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    setUploadingImage(true);
-    setUploadProgress(0);
+
+    const file = e.target.files[0]
+
+    if (!file) return
+    setUploadingImage (true)
+    setUploadProgress (0)
+
     try {
-      const url = await uploadToCloudinary(file, ev => {
-        setUploadProgress(Math.round((ev.loaded * 100) / ev.total));
-      });
-      await onSend?.({ type: 'image', mediaSrc: url });
+      const url = await uploadToCloudinary ( file, ev => {
+        setUploadProgress (Math.round( (ev.loaded * 100) / ev.total ) )
+      } )
+
+      await onSend?. ( { type: 'image', mediaSrc: url } )
     } catch (err) {
-      console.error('Image upload/send failed:', err);
+      console.error ('Image upload/send failed:', err);
+
+      // Tip: maybe let the user retry on failure
     } finally {
-      setUploadingImage(false);
-      setUploadProgress(null);
-      e.target.value = '';
-      setShowMediaOptions(false);
+
+      setUploadingImage (false)
+      setUploadProgress(null)
+
+      e.target.value = ''
+      setShowMediaOptions (false);
     }
   };
 
   return (
+
     <>
       {uploadingImage && <ImageUploadLoader progress={uploadProgress} />}
 
       <AnimatePresence>
-        {showCanvas && (
+         {/* canvas or voice overlays */}
+        { showCanvas && (
           <CanvasOverlay
             onSend={msg => { onSend?.(msg); setShowCanvas(false); }}
             onClose={() => setShowCanvas(false)}
           />
+
         )}
-        {showVoice && (
+
+        { showVoice && (
           <VoiceMessage
             onSend={msg => { onSend?.(msg); setShowVoice(false); }}
             onClose={() => setShowVoice(false)}
           />
+
         )}
+
       </AnimatePresence>
 
-      <div className={styles.floatingBar}>
-        {/* Hidden inputs for gallery & camera */}
+      <div className={`${ styles.floatingBar } ${
+          isFocused ? styles.focusMode : ""
+        }`}
+      >
+
+      {/* hidden file inputs for “Choose from Gallery” & “Take Photo” */}
         <input
           type="file"
           accept="image/*"
@@ -108,6 +145,7 @@ export default function FloatingActionBar({ onSend, onType }) {
           style={{ display: 'none' }}
           onChange={onImageSelected}
         />
+
         <input
           type="file"
           accept="image/*"
@@ -117,7 +155,8 @@ export default function FloatingActionBar({ onSend, onType }) {
           onChange={onImageSelected}
         />
 
-        {/* Icons */}
+
+        {/* icons */}
         <motion.button
           className={styles.iconBtn}
           onClick={() => setShowMediaOptions(true)}
@@ -127,24 +166,25 @@ export default function FloatingActionBar({ onSend, onType }) {
         </motion.button>
         
         <motion.button
-  className={styles.iconBtn}
-  style={{
-    backgroundColor: showCanvas ? '#ffe680' : '#eeeeee',
-    borderRadius: '50%',
-    padding: '10px',
-    boxShadow: showCanvas
-      ? '0 0 12px 2px rgba(255, 223, 0, 0.7)'
-      : '0 2px 8px rgba(0,0,0,0.2)',
-    transition: 'all 0.3s ease',
-  }}
-  onClick={() => setShowCanvas(prev => !prev)}
+     className={styles.iconBtn}
+     style={{
+       backgroundColor: showCanvas ? '#ffe680' : '#eeeeee',
+       borderRadius: '50%',
+       padding: '10px',
+       boxShadow: showCanvas
+         ? '0 0 12px 2px rgba(255, 223, 0, 0.7)'
+         : '0 2px 8px rgba(0,0,0,0.2)',
+       transition: 'all 0.3s ease',
+     }}
+
+    onClick={() => setShowCanvas(prev => !prev)}
   
-  whileHover={{ scale: 1.15 }}
-  whileTap={{ scale: 0.95 }}
-  animate={{ rotate: showCanvas ? 90 : 0 }}
->
-  🎨
-</motion.button>
+     whileHover={{ scale: 1.15 }}
+     whileTap={{ scale: 0.95 }}
+     animate={{ rotate: showCanvas ? 90 : 0 }}
+   >
+   🎨
+    </motion.button>
 
 
         <motion.button
@@ -155,7 +195,7 @@ export default function FloatingActionBar({ onSend, onType }) {
           <i className="fa-solid fa-microphone"></i>
         </motion.button>
 
-        {/* Textarea */}
+        {/* textarea */}
         <motion.textarea
           ref={inputRef}
           rows={1}
@@ -163,12 +203,12 @@ export default function FloatingActionBar({ onSend, onType }) {
           onChange={e => handleInputChange(e.target.value)}
           onFocus={handleFocus}
           onBlur={handleBlur}
-          placeholder="Type here..."
+          placeholder="Type..."
           className={`${styles.inputBox} ${isFocused ? styles.inputFocused : ''}`}
           style={{ overflow: 'auto' }}
         />
 
-        {/* Send button with loader disabling */}
+        {/* send button with loader disabling */}
         <motion.button
           onClick={sendText}
           className={styles.sendBtn}
@@ -179,9 +219,10 @@ export default function FloatingActionBar({ onSend, onType }) {
         </motion.button>
       </div>
 
-      {/* Bottom-sheet media options */}
+      {/* bottom-sheet media options */}
       <AnimatePresence>
-        {showMediaOptions && (
+
+        { showMediaOptions && (
           <motion.div
             className={styles.mediaSheet}
             initial={{ y: '100%' }}
@@ -189,21 +230,28 @@ export default function FloatingActionBar({ onSend, onType }) {
             exit={{ y: '100%' }}
             transition={{ type: 'spring', stiffness: 300 }}
           >
+
             <button className={styles.sheetBtn} onClick={openCamera}>
               📷 Take Photo
             </button>
+
             <button className={styles.sheetBtn} onClick={openGallery}>
               🖼️ Choose from Gallery
             </button>
+
             <button
               className={styles.sheetCancel}
               onClick={() => setShowMediaOptions(false)}
             >
               Cancel
             </button>
+
           </motion.div>
         )}
+
       </AnimatePresence>
+
     </>
+    
   );
 }

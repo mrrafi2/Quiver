@@ -1,53 +1,59 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { createPortal } from 'react-dom';
 import styles from '../../styles/ImageUploadLoader.module.css';
 
 export default function ImageUploadLoader({ progress = null }) {
-  // Determine fill height (0–100%)
-  const fillHeight = progress != null ? `${progress}%` : '0%';
-  // Disable indeterminate animation when real progress is provided
+
+  const fillHeight = progress != null ? `${progress}%` : '40%';  // default idle look
+
+  const container = document.getElementById ('portal-root') || document.body;
+
   const liquidStyle = {
     '--fill': fillHeight,
-    animation: progress != null ? 'none' : undefined
+    // flag used by CSS to disable indeterminate when real progress provided
+    '--indeterminate': progress == null ? 1 : 0
   };
 
-  return ReactDOM.createPortal(
-    <div className={styles.overlay}>
+  return createPortal(
+
+    <div 
+    className= {styles.overlay}
+     role="status" 
+     aria-live="polite" 
+     aria-busy={progress == null}
+     >
+
       <div className={styles.loaderWrapper}>
-        <div
-          className={styles.glassContainer}
-        >
-          <div
-            className={styles.liquid}
-            style={liquidStyle}
-          />
-          {/* SVG wave for that wavy top edge */}
-          <svg
-            className={styles.wave}
-            viewBox="0 0 500 20"
-            preserveAspectRatio="none"
-          >
-            <path
-              d="M0,10 C150,20 350,0 500,10 L500,00 L0,0 Z"
-              fill="rgba(102, 252, 241, 0.8)"
-            >
-              <animateTransform
-                attributeName="transform"
-                attributeType="XML"
-                type="translate"
-                from="0 0"
-                to="-500 0"
-                dur="4s"
-                repeatCount="indefinite"
-              />
-            </path>
-          </svg>
+
+        <div className={styles.glassContainer} aria-hidden="false">
+
+          {/* Liquid layer */}
+          <div className={styles.liquid} style={liquidStyle}>
+
+            <div className={styles.surface} />
+            <div className={styles.blobGroup}>
+              <span className={styles.blob} />
+              <span className={styles.blob} />
+              <span className={styles.blob} />
+            </div>
+
+            <div className={styles.bubbles}>
+              <span />
+              <span />
+              <span />
+            </div>
+          </div>
+          {/* subtle glass glare */}
+          <div className={styles.glare} />
         </div>
 
-        {/* Centered progress indicator below the glass */}
-        {progress != null && (
-          <div className={styles.progressCircle}>
-            <svg viewBox="0 0 36 36">
+        {/* determinate progress indicator */}
+        { progress != null && (
+          <div className={styles.progressCircle}
+           aria-hidden="true"
+           >
+            
+            <svg viewBox="0 0 36 36" className={styles.progressSvg}>
               <path
                 className={styles.circleBg}
                 d="M18 2.0845
@@ -67,6 +73,6 @@ export default function ImageUploadLoader({ progress = null }) {
         )}
       </div>
     </div>,
-    document.body
+    container
   );
 }

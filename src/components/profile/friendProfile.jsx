@@ -1,4 +1,5 @@
-// FriendProfile.jsx
+//  display a friend's full profile, including their friends and details
+
 import React, { useState, useEffect } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ref, get, onValue, set } from "firebase/database";
@@ -7,79 +8,111 @@ import { useAuth } from "../../contexts/AuthContext";
 import { motion } from "framer-motion";
 import styles from "../../styles/FriendProfile.module.css";
 
-const FriendProfile = () => {
-  const { uid } = useParams(); // Friend's UID passed via the route
-  const { currentUser } = useAuth();
-  const [friendData, setFriendData] = useState(null); // Data for the friend being viewed
-  const [friendList, setFriendList] = useState([]);   // Friend's friend list
-  const [showModal, setShowModal] = useState(false);
-  const [sentRequests, setSentRequests] = useState([]); // Track friend requests sent from modal
-  const [myFriendIds, setMyFriendIds] = useState([]); // Main (logged-in) user's friend IDs
+const FriendProfile = ( ) => {
 
-  // Fetch friend profile data
-  useEffect(() => {
+  const { uid } = useParams();  // friend's UID passed via the route
+  const { currentUser } = useAuth();
+
+  const [friendData, setFriendData] = useState(null);  // data for the friend being viewed
+
+  const [friendList, setFriendList] = useState([]);   // friend's friend list
+  const [showModal, setShowModal] = useState(false);
+  const [sentRequests, setSentRequests] = useState([]);  // track friend requests sent from modal
+
+  const [myFriendIds, setMyFriendIds] = useState([]); // main (logged-in) user's friend IDs
+
+
+  //  fetch friend profile data once on mount (or when UID changes)
+  useEffect( () => {
     const fetchFriendData = async () => {
+
       try {
-        const friendRef = ref(realtimeDB, `users/${uid}`);
-        const snapshot = await get(friendRef);
-        if (snapshot.exists()) {
-          setFriendData(snapshot.val());
+        const friendRef = ref(realtimeDB, `users/${uid}`)
+
+        const snapshot = await get(friendRef)
+
+        if (snapshot.exists ()) {
+
+          setFriendData(snapshot.val())
         }
       } catch (error) {
         console.error("Error fetching friend profile data:", error);
       }
     };
-    fetchFriendData();
-  }, [uid]);
+    fetchFriendData()
+  }, [uid])
 
+
+    //  subscribe to this friend's friend-list, updating in real-time
   useEffect(() => {
-    const friendsRef = ref(realtimeDB, `friends/${uid}`);
-    const unsubscribe = onValue(friendsRef, async snapshot => {
-      if (snapshot.exists()) {
-        const friendsObj = snapshot.val();
-        const friendIds = Object.keys(friendsObj);
-        const promises = friendIds.map(async friendId => {
-          const userRef = ref(realtimeDB, `users/${friendId}`);
-          const userSnap = await get(userRef);
-          return userSnap.exists() ? { uid: friendId, ...userSnap.val() } : null;
-        });
-        const fullList = await Promise.all(promises);
+    const friendsRef = ref(realtimeDB, `friends/${uid}`)
+
+    const unsubscribe = onValue (friendsRef, async snapshot => {
+      if (snapshot.exists( )) {
+
+        const friendsObj = snapshot.val()
+
+        const friendIds = Object.keys(friendsObj)
+
+        const promises = friendIds.map (async friendId => {
+          const userRef = ref (realtimeDB, `users/${friendId}`)
+        const userSnap = await get(userRef)
+
+          return userSnap.exists ( ) ? { uid: friendId, ...userSnap.val() } : null
+        })
+
+    const fullList= await Promise.all(promises)
         setFriendList(fullList.filter(item => item !== null));
       } else {
         setFriendList([]);
       }
-    });
-    return () => unsubscribe();
+    }
+  );
+    return () => unsubscribe()
+
   }, [uid]);
 
-  
-  useEffect(() => {
-    if (currentUser) {
-      const myFriendsRef = ref(realtimeDB, `friends/${currentUser.uid}`);
-      const unsubscribe = onValue(myFriendsRef, snapshot => {
-        if (snapshot.exists()) {
-          setMyFriendIds(Object.keys(snapshot.val()));
-        } else {
-          setMyFriendIds([]);
-        }
-      });
-      return () => unsubscribe();
-    }
-  }, [currentUser]);
 
+    // subscribe to current user's friends to disable "Add Friend" where appropriate
+  useEffect(( ) => {
+
+    if (currentUser) {
+      const myFriendsRef = ref(realtimeDB, `friends/${currentUser.uid}`)
+
+      const unsubscribe = onValue(myFriendsRef, snapshot => {
+
+        if (snapshot.exists ( )) {
+          setMyFriendIds(Object.keys(snapshot.val()) 
+        )
+        } else {
+          setMyFriendIds([])
+
+        }
+      }
+    );
+      return () => unsubscribe ( )
+    }
+  }, [currentUser] )
+
+
+    // Send a friend request to a given UID (avoid duplicates)
   const handleSendFriendRequest = async (targetUid) => {
     try {
-      // Prevent duplicate requests
-      if (sentRequests.includes(targetUid)) return;
-      const reqRef = ref(realtimeDB, `friendRequests/${targetUid}/${currentUser.uid}`);
+      // prevent duplicate requests
+      if (sentRequests.includes (targetUid)) return
+
+      const reqRef = ref(realtimeDB, `friendRequests/${targetUid}/${currentUser.uid}`)
+
       await set(reqRef, {
         from: currentUser.uid,
         displayName: currentUser.displayName,
         avatarIcon: currentUser.avatarIcon || "",
         timestamp: Date.now()
       });
-      setSentRequests(prev => [...prev, targetUid]);
-      alert("Friend request sent!");
+
+      setSentRequests(prev => [...prev, targetUid] )
+
+      alert("Friend request sent!")
     } catch (error) {
       console.error("Error sending friend request:", error);
     }
@@ -88,9 +121,11 @@ const FriendProfile = () => {
   if (!friendData) {
     return <p>Loading profile...</p>;
   }
-
+  
+  //  show only the first 8 friend avatars, rest hidden behind "+N"
   const topFriends = friendList.slice(0, 8);
   const extraCount = friendList.length - 8;
+
 
   return (
     <motion.div 
@@ -99,7 +134,7 @@ const FriendProfile = () => {
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
     >
-      {/* Header Section */}
+      {/*the header */}
       <div className={styles.headerSection}>
         <div className={styles.profilePicContainer}>
           <img
@@ -107,17 +142,29 @@ const FriendProfile = () => {
             alt="Profile"
             className={styles.profilePic}
           />
+
         </div>
         <div className={styles.infoHeader}>
-          <h2 className={styles.profileName}>{friendData.displayName}</h2>
-          <p className={styles.email}>{friendData.email}</p>
-             <p className={styles.phone}>{friendData.phoneNumber}</p>
+          <h2 className={styles.profileName}>
+            {friendData.displayName}
+            </h2>
+
+          <p className={styles.email}>
+            {friendData.email}
+            </p>
+
+             <p className={styles.phone}>
+              {friendData.phoneNumber}
+              </p>
+
         </div>
+
       </div>
       <hr style={{backgroundColor:"whitesmoke"}}/>
 
       <div className={styles.friendsSection}>
         <h3>Friends</h3>
+
         <div 
           className={styles.friendsList}
           onClick={() => setShowModal(true)}
@@ -159,14 +206,24 @@ const FriendProfile = () => {
       alt={friend.displayName}
       className={styles.friendItemAvatar}
     />
+
     <div className={styles.friendItemInfo}>
-      <span className={styles.friendItemName}>{friend.displayName}</span>
+      <span className={styles.friendItemName}>
+        {friend.displayName}
+        </span>
       
     </div>
-    {friend.uid === currentUser.uid ? (
-      <span className={styles.friendBadge}>You</span>
+
+    { friend.uid === currentUser.uid ? (
+      <span className={styles.friendBadge}> 
+      You
+      </span>
+
     ) : myFriendIds.includes(friend.uid) ? (
-      <span className={styles.friendBadge}>Friend</span>
+      <span className={styles.friendBadge}>
+        Friend
+      </span>
+
     ) : (
       <motion.button
         whileHover={{ scale: 1.05 }}
@@ -194,18 +251,30 @@ const FriendProfile = () => {
 
       <div className={styles.detailsSection}>
         <div className={styles.detailItem}>
-          <span className={styles.detailLabel}>Bio:</span> <br />
-          <span className={styles.detailValue} style={{width:'80%',textAlign:'center'}}>{friendData.bio || "Not provided"}</span>
+          <span className={styles.detailLabel}>
+            Bio:
+            </span>
+             <br />
+
+          <span className={styles.detailValue} style={{width:'80%',textAlign:'center'}}>
+            {friendData.bio || "Not provided"}
+            </span>
+
         </div>
+
         <hr style={{backgroundColor:"whitesmoke"}}/>
 
         <div className={styles.detailItem}>
-          <span className={styles.detailLabel}>Location:</span>
-          <span className={styles.detailValue}>{friendData.location || "Not provided"}</span>
+          <span className={styles.detailLabel}>
+            Location:
+            </span>
+          <span className={styles.detailValue}>
+            {friendData.location || "Not provided"}
+            </span>
         </div>
 
         <div className={styles.detailItem}>
-  <span className={styles.detailLabel}>Education:</span>
+  <span className={styles.detailLabel}>Education: </span>
   <span className={styles.detailValue}>
     {Array.isArray(friendData.education) && friendData.education.length > 0 ? (
       <ul className={styles.educationList}>
@@ -227,7 +296,9 @@ const FriendProfile = () => {
 
         <div className={styles.detailItem}>
           <span className={styles.detailLabel}>Date of Birth:</span>
-          <span className={styles.detailValue}>{friendData.dateOfBirth || "Not provided"}</span>
+          <span className={styles.detailValue}>
+            {friendData.dateOfBirth || "Not provided"}
+            </span>
         </div>
 
         <div className={styles.detailItem}>
@@ -236,9 +307,11 @@ const FriendProfile = () => {
             {friendData.hobby && friendData.hobby.length > 0 ? friendData.hobby.join(", ") : "Not provided"}
           </span>
         </div>
+
         <div className={styles.detailItem}>
           <span className={styles.detailLabel}>Relationship:</span>
-          <span className={styles.detailValue}>{friendData.relationship || "Not provided"}</span>
+          <span className={styles.detailValue}>
+            {friendData.relationship || "Not provided"}</span>
         </div>
 
         <div className={styles.detailItem}>

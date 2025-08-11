@@ -200,8 +200,9 @@ export default function Signup() {
             disabled={loading || success}
             value="Register"
           >
-            {"Register"}
-            {!loading && !success && "Register"} 
+            
+            { loading ? "Registering" : success ? "Success!" : "Register"}
+
           </button>
         )}
       </form>

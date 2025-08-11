@@ -6,16 +6,25 @@ import styles from "../../styles/login.module.css";
 import { Link, useNavigate } from "react-router-dom";
 
 export default function Login() {
+
   const { login, loginWithGoogle } = useAuth();
+
   const [showPassword, setShowPassword] = useState(false);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+
   const [error, setError] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
+
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
+
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
+
   const navigate = useNavigate();
+
   const typingTimeout = useRef(null);
   const [isTyping, setIsTyping] = useState(false);
 
@@ -25,7 +34,8 @@ export default function Login() {
     "Type your email, friend"
   ];
 
-  useEffect(() => {
+
+  useEffect( ( ) => {
     const id = setInterval(() => {
       setPlaceholderIdx(i => (i + 1) % placeholders.length);
     }, 3000);
@@ -33,19 +43,21 @@ export default function Login() {
   }, []);
 
   // Handle submit
-  async function handleSubmit(e) {
-    e.preventDefault();
-    setError("");
-    setIsError(false);
-    setIsLoading(true);
+  async function handleSubmit (e) {
+    e.preventDefault()
+
+    setError("")
+    setIsError (false);
+    setIsLoading (true);
 
     try {
-      await login(email, password);
+      await login (email, password);
       // success ripple
-      setIsSuccess(true);
-      setTimeout(() => navigate("/"), 1000);
+      setIsSuccess (true)
+
+      setTimeout( ( ) => navigate("/"), 1000);
     } catch (err) {
-      console.error(err);
+      console.error(err)
       setError("Failed to login.");
       setIsError(true);
       setIsLoading(false);
@@ -53,18 +65,21 @@ export default function Login() {
   }
 
   // Google login (no fancy animations here)
-  async function handleGoogleLogin() {
-    setError("");
+  async function handleGoogleLogin ( ) {
+    setError("")
+
     try {
       await loginWithGoogle();
       navigate("/");
     } catch (err) {
-      console.error(err);
+      console.error(err)
+
       setError("Failed to login with Google.");
     }
   }
 
   const handleTyping = v => {
+
     setIsTyping(true);
     clearTimeout(typingTimeout.current);
     typingTimeout.current = setTimeout(() => setIsTyping(false), 800);
@@ -155,12 +170,15 @@ export default function Login() {
             >
               {showPassword ? <FaEyeSlash /> : <FaEye />}
             </span>
-            {isTyping && (
+
+            {  isTyping && (
               <div className={styles.typingDots}>
-                <span/><span/><span/>
+                <span/>
+                <span/>
+                <span/>
               </div>
             )}
-          </div>
+      </div>
         </motion.div>
 
         {/* Error tooltip */}

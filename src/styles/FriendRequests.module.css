@@ -17,6 +17,7 @@
   animation: slideInRight 0.3s ease-out;
   overflow: hidden;
   position: relative;
+  margin-top: 65px;
 }
 
 .requestsPanel::before {
