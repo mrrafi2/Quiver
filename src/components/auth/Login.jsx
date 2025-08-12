@@ -17,6 +17,7 @@ export default function Login() {
   const [error, setError] = useState("");
 
   const [isLoading, setIsLoading] = useState(false);
+const [googleLoading, setGoogleLoading] = useState(false); 
 
   const [isSuccess, setIsSuccess] = useState(false);
   const [isError, setIsError] = useState(false);
@@ -66,15 +67,30 @@ export default function Login() {
 
   // Google login (no fancy animations here)
   async function handleGoogleLogin ( ) {
+      if (googleLoading || isLoading) return
+
     setError("")
+    setGoogleLoading(true)
 
     try {
-      await loginWithGoogle();
-      navigate("/");
-    } catch (err) {
-      console.error(err)
+      await loginWithGoogle ()
+      navigate("/")
 
-      setError("Failed to login with Google.");
+    } catch (err) {
+      console.error(err);
+      // map some common  errors 
+      if ( err?.code === "auth/unauthorized-domain" ) {
+        setError("This domain is not authorized for Google sign-in (check Firebase settings)." )
+      } 
+      else if ( err?.code === "auth/popup-blocked" || err?.code === "auth/popup-closed-by-user" ) {
+        setError("Google sign-in popup was blocked or closed. Try again or use redirect fallback." )
+      }
+       else {
+        setError( "Failed to login with Google." )
+      }
+      setIsError (true)
+    } finally {
+      setTimeout(() => setGoogleLoading (false), 350);
     }
   }
 
@@ -215,18 +231,28 @@ export default function Login() {
 
         <div className={styles.divider}>or</div>
 
-        <motion.button
+         <motion.button
           type="button"
           className={styles.googleButton}
           onClick={handleGoogleLogin}
+          disabled={googleLoading || isLoading}
+          aria-busy={googleLoading ? "true" : "false"}
           variants={{
             hidden: { scale: 0.8, opacity: 0 },
             visible: { scale: 1, opacity: 1 }
           }}
         >
-          <FaGoogle className="me-2" />
-          Login with Google
-        </motion.button>
+          {googleLoading ? (
+            <div className={styles.dotLoader} aria-hidden="true">
+              <span /><span /><span />
+            </div>
+          ) : (
+            <>
+              <FaGoogle className="me-2" />
+              Login with Google
+              
+            </>
+          )}        </motion.button>
 
         <br />
 

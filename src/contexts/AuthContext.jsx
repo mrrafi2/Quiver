@@ -319,6 +319,7 @@ export function AuthProvider({ children }) {
 
   const value = {
     currentUser,
+    loading,
     signup,
     login,
     loginWithGoogle,
@@ -326,5 +327,8 @@ export function AuthProvider({ children }) {
     updateUser,
   };
 
-  return <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+ return <AuthContext.Provider value={value}>
+    {children}
+  </AuthContext.Provider>
+
 }

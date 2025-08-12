@@ -9,6 +9,8 @@ import {Link} from "react-router-dom";
 import ReactDOM from 'react-dom'
 import { Linkedin, Twitter, Github, Facebook } from "lucide-react";
 import { useDropzone } from "react-dropzone";
+import hobbiesData from "../../data/hobbies.json";
+
 
 
 const DEFAULT_PROFILE_PIC = "https://via.placeholder.com/150?text=User";
@@ -94,17 +96,18 @@ const [coverPreview, setCoverPreview] = useState(
 
   // load hobbies list
     // todo: consider caching this ( local storage ) - hobbies rarely change.
-  useEffect( ( ) => {
-    fetch("/hobbies.json")
-      .then( (res) => res.json( ) )
-      .then( (data) => setAllHobbies (data) )
+  useEffect(( ) => {
 
-      .catch( (err) => console.error("Failed to load hobbies", err) )
-  }, [] )
+  const normalized = ( Array.isArray(hobbiesData) ? hobbiesData : [] )
+    .map(label => ({ key: String(label).trim().toLowerCase(), label: String(label) }
+  )
+  )
+
+  setAllHobbies(normalized);
+}, []);
 
   // toggle the hobby in selection list - tiny state mutation helper
   const handleToggleHobby = ( item) => {
-
     if (hobby.includes(item) ) {
       setHobby(hobby.filter( (h) => h !== item) )
     } else {
@@ -403,16 +406,26 @@ const removeEducation = idx => {
             <label>Hobbies</label>
 
             <div className={styles.hobbyContainer}>
-              {allHobbies.map((item) => (
-                <button
-                  type="button"
-                  key={item}
-                  className={`${styles.hobbyChip} ${hobby.includes(item) ? styles.selectedChip : ""}`}
-                  onClick={() => handleToggleHobby(item)}
-                >
-                  {item}
-                </button>
-              )) }
+              {allHobbies.length === 0 ? (
+
+                <div className={styles.hobbyLoading}>
+                  Loading hobbies…
+                  </div>
+              ) : (
+                allHobbies.map(({ key, label }) => {
+                  const selected = hobby.includes(key);
+                  return (
+                    <button
+                      type="button"
+                      key={key}
+                      className={`${styles.hobbyChip} ${selected ? styles.selectedChip : ""}`}
+                      onClick={() => handleToggleHobby(key)}
+                    >
+                      {label}
+                    </button>
+                  );
+                })
+              )}            
             </div>
           </div>
 
@@ -581,13 +594,17 @@ const removeEducation = idx => {
           
           <hr className={styles.divider} />
 
-          <div className={styles.detailItem}>
-            <span className={styles.detailLabel}>Hobbies:</span>
-
-            <span className={styles.detailValue}>
-              {hobby.length ? hobby.join(", ") : "Not provided"}
-              </span>
-          </div>
+      <div className={styles.detailItem}>
+        <span className={styles.detailLabel}>Hobbies:</span>
+      
+        <span className={styles.detailValue}>
+          {hobby.length
+            ? hobby
+                .map(key => allHobbies.find(h => h.key === key)?.label || key)
+                .join(", ")
+            : "Not provided"}
+        </span>
+       </div>
 
           <div className={styles.detailItem}>
             <span className={styles.detailLabel}>Relationship:</span>

@@ -7,9 +7,16 @@ import Profile from '../components/profile/Profile';
 import FriendProfile from '../components/profile/friendProfile';
 import { AuthProvider, useAuth } from "../contexts/AuthContext";
 import Layout from '../components/layout/Layout';
+import StartupLoader from '../components/ui/StartupLoader';
 
 const PrivateRoute = ({ children }) => {
-  const { currentUser } = useAuth();
+
+  const { currentUser, loading } = useAuth();
+
+ if (loading) {
+    return <StartupLoader />; 
+  }
+
   if (!currentUser) {
     return <Navigate to="/login" />;
   }
