@@ -66,33 +66,39 @@ const [googleLoading, setGoogleLoading] = useState(false);
   }
 
   // Google login (no fancy animations here)
-  async function handleGoogleLogin ( ) {
-      if (googleLoading || isLoading) return
+  async function handleGoogleLogin() {
+  setError("");
+  setGoogleLoading(true);
 
-    setError("")
-    setGoogleLoading(true)
+  try {
+    // loginWithGoogle may either:
+    //  - open a popup and resolve with a user (desktop), or
+    //  - start a redirect (mobile) and not return here because the browser navigates away.
 
-    try {
-      await loginWithGoogle ()
-      navigate("/")
+    await loginWithGoogle ( )
 
-    } catch (err) {
-      console.error(err);
-      // map some common  errors 
-      if ( err?.code === "auth/unauthorized-domain" ) {
-        setError("This domain is not authorized for Google sign-in (check Firebase settings)." )
-      } 
-      else if ( err?.code === "auth/popup-blocked" || err?.code === "auth/popup-closed-by-user" ) {
-        setError("Google sign-in popup was blocked or closed. Try again or use redirect fallback." )
-      }
-       else {
-        setError( "Failed to login with Google." )
-      }
-      setIsError (true)
-    } finally {
-      setTimeout(() => setGoogleLoading (false), 350);
+    // If popup flow completed immediately, navigate.
+    // If redirect flow was used, the page will navigate away and this code won't meaningfully run.
+    navigate("/")
+
+  } catch (err) {
+    console.error("Google login failed:", err);
+    // Friendly messages for common Firebase errors:
+    if (err?.code === "auth/unauthorized-domain") {
+      setError("This domain is not authorized for Google sign-in. Add it in Firebase Console.")
+    } 
+
+    else if (err?.code === "auth/popup-closed-by-user" || err?.code === "auth/cancelled-popup-request") {
+      setError("Google sign-in popup was blocked or closed. Try again or use redirect fallback.")
+    } 
+    
+    else {
+      setError("Failed to login with Google.");
     }
+    setGoogleLoading(false);
   }
+}
+
 
   const handleTyping = v => {
 
@@ -241,18 +247,20 @@ const [googleLoading, setGoogleLoading] = useState(false);
             hidden: { scale: 0.8, opacity: 0 },
             visible: { scale: 1, opacity: 1 }
           }}
+         aria-disabled={isLoading || googleLoading}
         >
           {googleLoading ? (
-            <div className={styles.dotLoader} aria-hidden="true">
+            <div className={styles.dotLoader} aria-hidden="true" style={{color:"#d32a1b"}}>
               <span /><span /><span />
             </div>
           ) : (
             <>
               <FaGoogle className="me-2" />
               Login with Google
-              
+
             </>
-          )}        </motion.button>
+          )}       
+           </motion.button>
 
         <br />
 

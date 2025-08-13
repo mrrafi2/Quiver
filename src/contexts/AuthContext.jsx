@@ -8,7 +8,10 @@ import {
   updateProfile,
   GoogleAuthProvider,
   signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult
 } from "firebase/auth";
+
 import React, { useContext, useEffect, useState, useRef } from "react";
 import "../services/Firebase";
 import { ref, set, update, get } from "firebase/database";
@@ -24,12 +27,16 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
-export function AuthProvider({ children }) {
+export function AuthProvider({ children })
+ {
   const [loading, setLoading] = useState(true);
   const [currentUser, setCurrentUser] = useState(null);
 
   // keep a ref for the foreground unsubscribe so we can cleanup later
   const unsubForegroundRef = useRef(null);
+
+ let _googleSignInLock = false;
+
 
   useEffect(() => {
     const auth = getAuth();
@@ -155,48 +162,139 @@ export function AuthProvider({ children }) {
     return signInWithEmailAndPassword(auth, email, password);
   }
 
-  async function loginWithGoogle() {
-    const auth = getAuth();
-    const provider = new GoogleAuthProvider();
+  // helper used by both popup & redirect flows to merge DB profile and set currentUser
+async function processGoogleResult(user) {
+  if (!user) return null;
 
+  const userRef = ref(realtimeDB, `users/${user.uid}`);
+  const userSnapshot = await get(userRef);
+
+  // default profile template
+  let userData = {
+    displayName: user.displayName,
+    email: user.email,
+    phoneNumber: null,
+    gender: null,
+    avatarIcon: null,
+    avatarBgColor: null,
+    isSeller: false,
+    languages: [],
+    socialLinks: { facebook: "", linkedin: "", twitter: "", github: "" },
+    coverUrl: null,
+    education: [],
+  };
+
+  if (!userSnapshot.exists()) {
+    await set(userRef, userData);
+  } else {
+    userData = userSnapshot.val();
+  }
+
+  // set merged currentUser
+  setCurrentUser({
+    ...user,
+    ...userData,
+  });
+
+  // attempt to register FCM token (fire-and-forget)
+  try {
+    const token = await registerAndSaveToken(user.uid);
+    if (token) console.log("FCM token registered for user", user.uid);
+  } catch (err) {
+    console.warn("FCM token registration failed:", err);
+  }
+
+  // attach foreground listener as in your onAuthStateChanged logic
+  try {
+    if (unsubForegroundRef.current) {
+      try { unsubForegroundRef.current(); } 
+      catch (e) { console.log (e)
+
+      }
+      unsubForegroundRef.current = null;
+    }
+    unsubForegroundRef.current = listenForForeground((payload) => {
+      console.log("Foreground message:", payload);
+    });
+  } catch (err) {
+    console.error("Failed to attach foreground listener:", err);
+  }
+
+  return userData;
+}
+
+// Call getRedirectResult once on mount so redirect sign-ins get processed
+useEffect(() => {
+  const auth = getAuth();
+  // getRedirectResult resolves only if a redirect sign-in just happened
+  getRedirectResult(auth)
+    .then((result) => {
+      if (result && result.user) {
+        // handle result (merge DB etc.)
+        processGoogleResult(result.user).catch(err => console.error("processGoogleResult error", err));
+      }
+    })
+    .catch((err) => {
+      // ignore expected "no redirect" errors but log real issues
+      if (err?.code && err.code !== "auth/no-auth-event") {
+        console.warn("getRedirectResult error:", err);
+      }
+    });
+// empty deps -> run on mount
+}, []);
+
+async function loginWithGoogle() {
+  if (_googleSignInLock) {
+    // avoid parallel attempts
+    return;
+  }
+  _googleSignInLock = true;
+
+  const auth = getAuth();
+  const provider = new GoogleAuthProvider();
+
+  // basic mobile/in-app browser detection — use redirect there (popups are flaky)
+  const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
+  const isMobileOrInApp = /iPhone|iPad|iPod|Android/i.test(ua) || /FBAN|FBAV|Instagram|Line|Twitter/i.test(ua);
+
+  try {
+    if (isMobileOrInApp) {
+      // redirect flow is most reliable on mobile/in-app webviews
+      await signInWithRedirect(auth, provider);
+      // execution will continue on redirect return via getRedirectResult or onAuthStateChanged
+      return;
+    }
+
+    // desktop: try popup first for better UX
     try {
       const result = await signInWithPopup(auth, provider);
-      const user = result.user;
-
-      const userRef = ref(realtimeDB, `users/${user.uid}`);
-      const userSnapshot = await get(userRef);
-
-      let userData = {
-        displayName: user.displayName,
-        email: user.email,
-        phoneNumber: null,
-        gender: null,
-        avatarIcon: null,
-        avatarBgColor: null,
-        isSeller: false,
-        languages: [],
-        socialLinks: { facebook: "", linkedin: "", twitter: "", github: "" },
-        coverUrl: null,
-        education: [],
-      };
-
-      if (!userSnapshot.exists()) {
-        await set(userRef, userData);
-      } else {
-        userData = userSnapshot.val();
+      // got result immediately — merge user into DB and set currentUser
+      if (result && result.user) {
+        await processGoogleResult(result.user);
+        return result.user;
       }
-
-      setCurrentUser({
-        ...user,
-        ...userData,
-      });
-
-      return user;
-    } catch (error) {
-      console.error("Google Sign-In Error:", error);
-      throw error;
+    } catch (err) {
+      console.warn("signInWithPopup failed:", err?.code || err?.message || err);
+      // If popup blocked or canceled or environment not supported, fallback to redirect
+      const fallbackCodes = [
+        "auth/popup-blocked",
+        "auth/popup-closed-by-user",
+        "auth/cancelled-popup-request",
+        "auth/operation-not-supported-in-this-environment"
+      ];
+      if (err && fallbackCodes.includes(err.code)) {
+        await signInWithRedirect(auth, provider);
+        return;
+      }
+      // if it's a different error, rethrow to let caller handle/display it
+      throw err;
     }
+  } finally {
+    // small delay before unlocking to reduce rapid re-click attempts
+    setTimeout(() => { _googleSignInLock = false; }, 400);
   }
+}
+
 
   // make logout async so we can remove FCM token server-side before sign out
   async function logout() {
@@ -222,8 +320,8 @@ export function AuthProvider({ children }) {
     if (unsubForegroundRef.current) {
       try {
         unsubForegroundRef.current();
-      } catch (e) {}
-      unsubForegroundRef.current = null;
+      } catch (e) { console.log(e) }
+      unsubForegroundRef.current = null
     }
 
     return signOut(auth);
