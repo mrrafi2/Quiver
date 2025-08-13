@@ -1,4 +1,5 @@
 // src/contexts/AuthContext.jsx
+import React, { useContext, useEffect, useState, useRef } from "react";
 import {
   createUserWithEmailAndPassword,
   getAuth,
@@ -9,16 +10,15 @@ import {
   GoogleAuthProvider,
   signInWithPopup,
   signInWithRedirect,
-  getRedirectResult
+  getRedirectResult,
 } from "firebase/auth";
 
-import React, { useContext, useEffect, useState, useRef } from "react";
 import "../services/Firebase";
 import { ref, set, update, get } from "firebase/database";
 import { realtimeDB } from "../services/Firebase";
 import { uploadToCloudinary } from "../services/Cloudinary";
 
-// messaging helpers you created (assumed to exist)
+// messaging helpers
 import { registerAndSaveToken, listenForForeground, removeTokenForUser } from "../services/messaging";
 
 const AuthContext = React.createContext();
@@ -27,111 +27,196 @@ export function useAuth() {
   return useContext(AuthContext);
 }
 
-export function AuthProvider({ children })
- {
-  const [loading, setLoading] = useState(true);
+export function AuthProvider({ children }) {
+  const [loading, setLoading] = useState(true); // app-level auth loading state
   const [currentUser, setCurrentUser] = useState(null);
 
-  // keep a ref for the foreground unsubscribe so we can cleanup later
+  // refs for cleanup/locks
   const unsubForegroundRef = useRef(null);
+  const googleSignInLockRef = useRef(false);
 
- let _googleSignInLock = false;
-
-
-  useEffect(() => {
-    const auth = getAuth();
-
-    // onAuthStateChanged returns an unsubscribe function
-    const unsubscribe = onAuthStateChanged(auth, async (user) => {
-      if (user) {
-        // fetch profile stored in realtime DB
-        const userRef = ref(realtimeDB, `users/${user.uid}`);
-        const userSnapshot = await get(userRef);
-
-        let storedAvatarIcon = null;
-        let storedAvatarBgColor = "";
-
-        if (user.photoURL) {
-          try {
-            if (user.photoURL.trim().startsWith("{")) {
-              const data = JSON.parse(user.photoURL);
-              storedAvatarIcon = data.avatarIcon;
-              storedAvatarBgColor = data.avatarBgColor;
-            } else {
-              storedAvatarIcon = user.photoURL;
-            }
-          } catch (e) {
-            console.error("Error parsing photoURL:", e);
-          }
-        }
-
-        const profileData = userSnapshot.exists() ? userSnapshot.val() : {};
-
-        // set current user with merged profile
-        setCurrentUser({
-          ...user,
-          ...profileData,
-          avatarIcon: storedAvatarIcon,
-          avatarBgColor: storedAvatarBgColor,
-        });
-
-        // FIRE-AND-FORGET: register token and save in DB under this user
-      
+  /**
+   * Centralized post-login processing:
+   * - parse photoURL JSON blob (avatarIcon, avatarBgColor)
+   * - read/create DB profile at users/${uid}
+   * - merge profile & setCurrentUser
+   * - register FCM token (best-effort)
+   * - attach foreground listener (cleanup previous)
+   *
+   * Idempotent: only creates default DB record when missing.
+   */
+  async function processGoogleResult(user) {
+    if (!user) return null;
+    try {
+      // parse avatar JSON from photoURL (if present)
+      let storedAvatarIcon = null;
+      let storedAvatarBgColor = "";
+      if (user.photoURL && typeof user.photoURL === "string") {
         try {
-          const token = await registerAndSaveToken(user.uid);
-          if (token) {
-            console.log("FCM token registered for user", user.uid);
+          const trimmed = user.photoURL.trim();
+          if (trimmed.startsWith("{")) {
+            const parsed = JSON.parse(trimmed);
+            storedAvatarIcon = parsed.avatarIcon || null;
+            storedAvatarBgColor = parsed.avatarBgColor || "";
+          } else {
+            storedAvatarIcon = user.photoURL;
           }
         } catch (err) {
-          console.error("FCM token register error", err);
+          console.warn("[AUTH] photoURL parse failed:", err);
         }
+      }
 
-        // attach foreground message listener and save unsubscribe function
+      // fetch profile data from Realtime DB
+      const userRef = ref(realtimeDB, `users/${user.uid}`);
+      const userSnapshot = await get(userRef);
+      let profileData = userSnapshot.exists() ? userSnapshot.val() : {};
+
+      if (!userSnapshot.exists()) {
+        // create a sensible default profile (idempotent)
+        const defaultData = {
+          displayName: user.displayName || "",
+          email: user.email || "",
+          phoneNumber: null,
+          gender: null,
+          avatarIcon: storedAvatarIcon || null,
+          avatarBgColor: storedAvatarBgColor || "",
+          isSeller: false,
+          languages: [],
+          socialLinks: { facebook: "", linkedin: "", twitter: "", github: "" },
+          coverUrl: null,
+          education: [],
+          bio: "",
+          location: "",
+          hobby: [],
+          relationship: "",
+          dateOfBirth: "",
+          occupation: "",
+        };
         try {
-          // if a previous unsub exists, clear it first
+          await set(userRef, defaultData);
+          profileData = defaultData;
+        } catch (e) {
+          console.warn("[AUTH] Failed to write default profile to DB:", e);
+        }
+      } else {
+        // merge avatar fields if DB doesn't have them but photoURL provided
+        if (!profileData.avatarIcon && storedAvatarIcon) profileData.avatarIcon = storedAvatarIcon;
+        if (!profileData.avatarBgColor && storedAvatarBgColor) profileData.avatarBgColor = storedAvatarBgColor;
+      }
+
+      // set merged currentUser for UI
+      setCurrentUser({
+        ...user,
+        ...profileData,
+        avatarIcon: profileData.avatarIcon || storedAvatarIcon || null,
+        avatarBgColor: profileData.avatarBgColor || storedAvatarBgColor || "",
+      });
+
+      // register FCM token (best-effort, don't block)
+      try {
+        const token = await registerAndSaveToken(user.uid);
+        if (token) console.log("[AUTH] FCM token registered for", user.uid);
+      } catch (err) {
+        console.warn("[AUTH] FCM token register failed (ignored):", err);
+      }
+
+      // attach foreground listener (clean previous)
+      try {
+        if (unsubForegroundRef.current) {
+          try { unsubForegroundRef.current(); } catch (e) { /* ignore */ }
+          unsubForegroundRef.current = null;
+        }
+        unsubForegroundRef.current = listenForForeground((payload) => {
+          console.log("[AUTH] Foreground message:", payload);
+          //  can dispatch a toast/event here
+        });
+      } catch (err) {
+        console.error("[AUTH] Failed to attach foreground listener:", err);
+      }
+
+      return profileData;
+    } catch (err) {
+      console.error("[AUTH] processGoogleResult error:", err);
+      throw err;
+    }
+  }
+
+  // onAuthStateChanged: single source of truth for when a user is signed in/out.
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      try {
+        if (user) {
+          console.log("[AUTH] onAuthStateChanged: user present", user.uid);
+          // Centralized processing ensures redirect + popup flows behave the same
+          await processGoogleResult(user);
+        } else {
+          console.log("[AUTH] onAuthStateChanged: no user");
+          setCurrentUser(null);
+
+          // cleanup any foreground listener
           if (unsubForegroundRef.current) {
             try { unsubForegroundRef.current(); } catch (e) { /* ignore */ }
             unsubForegroundRef.current = null;
           }
-
-          unsubForegroundRef.current = listenForForeground((payload) => {
-            // called whenever a foreground message arrives
-            console.log("Foreground message:", payload);
-            // you could dispatch an in-app toast here
-          });
-        } catch (err) {
-          console.error("Failed to attach foreground listener:", err);
         }
-      } else {
-        // user logged out or not logged in
-        setCurrentUser(null);
-
-        // cleanup any foreground listener
-        if (unsubForegroundRef.current) {
-          try {
-            unsubForegroundRef.current();
-          } catch (e) {
-            /* ignore errors on cleanup */
-          }
-          unsubForegroundRef.current = null;
-        }
+      } catch (err) {
+        console.error("[AUTH] onAuthStateChanged handler error:", err);
+      } finally {
+        setLoading(false);
+        try { sessionStorage.removeItem("googleRedirectInProgress"); } catch (e) { /* ignore */ }
       }
-
-      setLoading(false); // done with auth state handling
     });
 
-    // cleanup on unmount: unsubscribe auth listener and foreground listener
     return () => {
       unsubscribe();
       if (unsubForegroundRef.current) {
-        try {
-          unsubForegroundRef.current();
-        } catch (e) {}
+        try { unsubForegroundRef.current(); } catch (e) { /* ignore */ }
         unsubForegroundRef.current = null;
       }
     };
+    // run once on mount
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // getRedirectResult: safe, tolerant check (useful when redirect flow returns quickly)
+  useEffect(() => {
+    const auth = getAuth();
+
+    async function checkRedirectResult() {
+      try {
+        const redirectFlag = sessionStorage.getItem("googleRedirectInProgress");
+        if (!redirectFlag) {
+          // harmless one-off: sometimes redirect result is available even without flag
+          const result = await getRedirectResult(auth);
+          if (result && result.user) {
+            console.log("[AUTH] getRedirectResult returned user:", result.user.uid);
+            await processGoogleResult(result.user);
+          }
+          return;
+        }
+
+        console.log("[AUTH] Detected googleRedirectInProgress — checking getRedirectResult...");
+        const result = await getRedirectResult(auth);
+        if (result && result.user) {
+          console.log("[AUTH] getRedirectResult (after redirect) user:", result.user.uid);
+          await processGoogleResult(result.user);
+        } else {
+          console.log("[AUTH] getRedirectResult: no result.user (onAuthStateChanged will handle it).");
+        }
+      } catch (err) {
+        // ignore expected "no redirect" errors, log others
+        console.warn("[AUTH] getRedirectResult error (ignored):", err && err.code ? err.code : err);
+      } finally {
+        try { sessionStorage.removeItem("googleRedirectInProgress"); } catch (e) { /* ignore */ }
+      }
+    }
+
+    checkRedirectResult();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Email/password signup
   async function signup(email, password, username, phoneNumber, gender) {
     const auth = getAuth();
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -143,7 +228,7 @@ export function AuthProvider({ children })
 
     const userData = {
       displayName: username,
-      email: email,
+      email,
       phoneNumber: phoneNumber || null,
       gender: gender || null,
       totalScore: 0,
@@ -153,181 +238,92 @@ export function AuthProvider({ children })
     };
 
     await set(ref(realtimeDB, `users/${user.uid}`), userData);
-
     setCurrentUser({ ...user, ...userData });
   }
 
+  // Email/password login
   function login(email, password) {
     const auth = getAuth();
     return signInWithEmailAndPassword(auth, email, password);
   }
 
-  // helper used by both popup & redirect flows to merge DB profile and set currentUser
-async function processGoogleResult(user) {
-  if (!user) return null;
+  // Login with Google (desktop: popup -> fallback to redirect; mobile/in-app: redirect)
+  async function loginWithGoogle() {
+    if (googleSignInLockRef.current) return;
+    googleSignInLockRef.current = true;
 
-  const userRef = ref(realtimeDB, `users/${user.uid}`);
-  const userSnapshot = await get(userRef);
+    const auth = getAuth();
+    const provider = new GoogleAuthProvider();
 
-  // default profile template
-  let userData = {
-    displayName: user.displayName,
-    email: user.email,
-    phoneNumber: null,
-    gender: null,
-    avatarIcon: null,
-    avatarBgColor: null,
-    isSeller: false,
-    languages: [],
-    socialLinks: { facebook: "", linkedin: "", twitter: "", github: "" },
-    coverUrl: null,
-    education: [],
-  };
+    // simple UA detection for mobile/in-app environments
+    const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
+    const isMobileOrInApp = /iPhone|iPad|iPod|Android/i.test(ua) || /FBAN|FBAV|Instagram|Line|Twitter/i.test(ua);
 
-  if (!userSnapshot.exists()) {
-    await set(userRef, userData);
-  } else {
-    userData = userSnapshot.val();
-  }
-
-  // set merged currentUser
-  setCurrentUser({
-    ...user,
-    ...userData,
-  });
-
-  // attempt to register FCM token (fire-and-forget)
-  try {
-    const token = await registerAndSaveToken(user.uid);
-    if (token) console.log("FCM token registered for user", user.uid);
-  } catch (err) {
-    console.warn("FCM token registration failed:", err);
-  }
-
-  // attach foreground listener as in your onAuthStateChanged logic
-  try {
-    if (unsubForegroundRef.current) {
-      try { unsubForegroundRef.current(); } 
-      catch (e) { console.log (e)
-
-      }
-      unsubForegroundRef.current = null;
-    }
-    unsubForegroundRef.current = listenForForeground((payload) => {
-      console.log("Foreground message:", payload);
-    });
-  } catch (err) {
-    console.error("Failed to attach foreground listener:", err);
-  }
-
-  return userData;
-}
-
-// Call getRedirectResult once on mount so redirect sign-ins get processed
-useEffect(() => {
-  const auth = getAuth();
-  // getRedirectResult resolves only if a redirect sign-in just happened
-  getRedirectResult(auth)
-    .then((result) => {
-      if (result && result.user) {
-        // handle result (merge DB etc.)
-        processGoogleResult(result.user).catch(err => console.error("processGoogleResult error", err));
-      }
-    })
-    .catch((err) => {
-      // ignore expected "no redirect" errors but log real issues
-      if (err?.code && err.code !== "auth/no-auth-event") {
-        console.warn("getRedirectResult error:", err);
-      }
-    });
-// empty deps -> run on mount
-}, []);
-
-async function loginWithGoogle() {
-  if (_googleSignInLock) {
-    // avoid parallel attempts
-    return;
-  }
-  _googleSignInLock = true;
-
-  const auth = getAuth();
-  const provider = new GoogleAuthProvider();
-
-  // basic mobile/in-app browser detection — use redirect there (popups are flaky)
-  const ua = typeof navigator !== "undefined" ? navigator.userAgent || "" : "";
-  const isMobileOrInApp = /iPhone|iPad|iPod|Android/i.test(ua) || /FBAN|FBAV|Instagram|Line|Twitter/i.test(ua);
-
-  try {
-    if (isMobileOrInApp) {
-      // redirect flow is most reliable on mobile/in-app webviews
-      await signInWithRedirect(auth, provider);
-      // execution will continue on redirect return via getRedirectResult or onAuthStateChanged
-      return;
-    }
-
-    // desktop: try popup first for better UX
     try {
-      const result = await signInWithPopup(auth, provider);
-      // got result immediately — merge user into DB and set currentUser
-      if (result && result.user) {
-        await processGoogleResult(result.user);
-        return result.user;
-      }
-    } catch (err) {
-      console.warn("signInWithPopup failed:", err?.code || err?.message || err);
-      // If popup blocked or canceled or environment not supported, fallback to redirect
-      const fallbackCodes = [
-        "auth/popup-blocked",
-        "auth/popup-closed-by-user",
-        "auth/cancelled-popup-request",
-        "auth/operation-not-supported-in-this-environment"
-      ];
-      if (err && fallbackCodes.includes(err.code)) {
+      if (isMobileOrInApp) {
+        console.log("[AUTH] Mobile or in-app detected — using redirect");
+        try { sessionStorage.setItem("googleRedirectInProgress", "1"); } catch (e) { /* ignore */ }
         await signInWithRedirect(auth, provider);
         return;
       }
-      // if it's a different error, rethrow to let caller handle/display it
-      throw err;
+
+      // Desktop UX: try popup first
+      try {
+        const result = await signInWithPopup(auth, provider);
+        if (result && result.user) {
+          console.log("[AUTH] signInWithPopup success", result.user.uid);
+          await processGoogleResult(result.user);
+          return result.user;
+        }
+      } catch (err) {
+        console.warn("[AUTH] signInWithPopup failed:", err && err.code ? err.code : err);
+        const fallbackCodes = [
+          "auth/popup-blocked",
+          "auth/popup-closed-by-user",
+          "auth/cancelled-popup-request",
+          "auth/operation-not-supported-in-this-environment",
+        ];
+        if (err && fallbackCodes.includes(err.code)) {
+          console.log("[AUTH] Falling back to redirect flow (desktop)");
+          try { sessionStorage.setItem("googleRedirectInProgress", "1"); } catch (e) { /* ignore */ }
+          await signInWithRedirect(auth, provider);
+          return;
+        }
+        throw err;
+      }
+    } finally {
+      setTimeout(() => {
+        googleSignInLockRef.current = false;
+      }, 400);
     }
-  } finally {
-    // small delay before unlocking to reduce rapid re-click attempts
-    setTimeout(() => { _googleSignInLock = false; }, 400);
   }
-}
 
-
-  // make logout async so we can remove FCM token server-side before sign out
+  // logout: remove FCM token, cleanup listeners
   async function logout() {
     const auth = getAuth();
-
-    // remove saved token if present locally & remove from DB
     try {
       const token = localStorage.getItem("fcmToken");
       if (token && currentUser?.uid) {
-        // ensure removeTokenForUser is awaited
         try {
           await removeTokenForUser(currentUser.uid, token);
         } catch (err) {
-          console.warn("remove token failed", err);
+          console.warn("[AUTH] removeTokenForUser failed (ignored):", err);
         }
         localStorage.removeItem("fcmToken");
       }
     } catch (e) {
-      console.warn("Error removing FCM token on logout:", e);
+      console.warn("[AUTH] Error removing FCM token on logout:", e);
     }
 
-    // cleanup foreground listener if still attached
     if (unsubForegroundRef.current) {
-      try {
-        unsubForegroundRef.current();
-      } catch (e) { console.log(e) }
-      unsubForegroundRef.current = null
+      try { unsubForegroundRef.current(); } catch (e) { /* ignore */ }
+      unsubForegroundRef.current = null;
     }
 
     return signOut(auth);
   }
 
-  // updated updateUser function to handle additional profile fields
+  // updateUser: updates profile photo via Cloudinary, DB record, and Auth profile (photoURL JSON)
   async function updateUser(
     newDisplayName,
     newProfilePicFile,
@@ -345,74 +341,78 @@ async function loginWithGoogle() {
     newAvatarBgColor = currentUser?.avatarBgColor || ""
   ) {
     const auth = getAuth();
-    if (auth.currentUser) {
-      let newAvatarIcon = null;
-      if (newProfilePicFile) {
-        // Upload new profile picture to Cloudinary
+    if (!auth.currentUser) return;
+
+    let newAvatarIcon = currentUser?.avatarIcon || null;
+    if (newProfilePicFile) {
+      try {
         newAvatarIcon = await uploadToCloudinary(newProfilePicFile);
-      } else {
-        // Retain the current profile picture if none is selected
-        newAvatarIcon = currentUser?.avatarIcon || null;
+      } catch (err) {
+        console.error("[AUTH] upload avatar failed:", err);
       }
+    }
 
-      let newCoverUrl = currentUser?.coverUrl || null;
-      if (newCoverFile) {
+    let newCoverUrl = currentUser?.coverUrl || null;
+    if (newCoverFile) {
+      try {
         newCoverUrl = await uploadToCloudinary(newCoverFile);
-      }
-
-      try {
-        // Update Firebase Auth profile (only displayName and photoURL are supported)
-        await updateProfile(auth.currentUser, {
-          displayName: newDisplayName,
-          photoURL: JSON.stringify({
-            avatarIcon: newAvatarIcon,
-            avatarBgColor: newAvatarBgColor,
-          }),
-        });
       } catch (err) {
-        console.error("Error updating auth profile:", err);
+        console.error("[AUTH] upload cover failed:", err);
       }
+    }
 
-      try {
-        // Update the profile record in the Firebase Realtime Database
-        await update(ref(realtimeDB, `users/${auth.currentUser.uid}`), {
-          displayName: newDisplayName,
-          bio: newBio,
-          coverUrl: newCoverUrl,
-          location: newLocation,
-          hobby: newHobby,
-          relationship: newRelationship,
-          avatarIcon: newAvatarIcon,
-          dateOfBirth: newDateOfBirth,
-          gender: newGender,
-          occupation: newOccupation,
-          languages: newLanguages,
-          socialLinks: newSocialLinks,
-          education: newEducationArray,
-          avatarBgColor: newAvatarBgColor,
-        });
-      } catch (err) {
-        console.error("Error updating database profile:", err);
-      }
-
-      setCurrentUser((prevUser) => ({
-        ...prevUser,
+    try {
+      // update Firebase Auth profile (photoURL contains our JSON blob)
+      await updateProfile(auth.currentUser, {
         displayName: newDisplayName,
-        coverUrl: newCoverUrl,
+        photoURL: JSON.stringify({
+          avatarIcon: newAvatarIcon,
+          avatarBgColor: newAvatarBgColor,
+        }),
+      });
+    } catch (err) {
+      console.error("[AUTH] updateProfile error:", err);
+    }
+
+    try {
+      await update(ref(realtimeDB, `users/${auth.currentUser.uid}`), {
+        displayName: newDisplayName,
         bio: newBio,
+        coverUrl: newCoverUrl,
         location: newLocation,
         hobby: newHobby,
         relationship: newRelationship,
+        avatarIcon: newAvatarIcon,
         dateOfBirth: newDateOfBirth,
         gender: newGender,
         occupation: newOccupation,
         languages: newLanguages,
         socialLinks: newSocialLinks,
         education: newEducationArray,
-        avatarIcon: newAvatarIcon,
         avatarBgColor: newAvatarBgColor,
-      }));
+      });
+    } catch (err) {
+      console.error("[AUTH] update database profile failed:", err);
     }
+
+    // finally update local currentUser
+    setCurrentUser((prev) => ({
+      ...prev,
+      displayName: newDisplayName,
+      coverUrl: newCoverUrl,
+      bio: newBio,
+      location: newLocation,
+      hobby: newHobby,
+      relationship: newRelationship,
+      dateOfBirth: newDateOfBirth,
+      gender: newGender,
+      occupation: newOccupation,
+      languages: newLanguages,
+      socialLinks: newSocialLinks,
+      education: newEducationArray,
+      avatarIcon: newAvatarIcon,
+      avatarBgColor: newAvatarBgColor,
+    }));
   }
 
   const value = {
@@ -425,8 +425,5 @@ async function loginWithGoogle() {
     updateUser,
   };
 
- return <AuthContext.Provider value={value}>
-    {children}
-  </AuthContext.Provider>
-
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
