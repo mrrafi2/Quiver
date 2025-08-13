@@ -1,5 +1,5 @@
 
-# Quiver — Mobile-First Real-Time Chat App
+# Quiver - Mobile-First Real-Time Chat App
 
 Quiver is a mobile-first, real-time chat playground built with intent: fast, tactile, and forgiving. It’s the product of late nights, stubborn debugging sessions, and an obsession with how conversations *feel* on phones — not just how they function.
 
@@ -21,7 +21,7 @@ Highlights:
 
 ---
 
-## Why this exists — the human story
+## Why this exists 
 
 Designing a chat app feels deceptively simple until you’re debugging a dropped connection in front of real users. Quiver grew from that exact friction: the moment when typing indicators go stale, a voice note fails, or an upload silently dies and the user gives up.
 
@@ -47,7 +47,7 @@ So I focused first on the shared experience: responsiveness, reliable feedback, 
 
 ---
 
-## Tech stack (exact from package.json)
+## Tech stack
 
 **Core**
 
